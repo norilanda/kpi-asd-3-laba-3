@@ -5,7 +5,7 @@ VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedBlackTreeAlgo", "RedBlackTreeAlgo\RedBlackTreeAlgo.csproj", "{25B58858-8E70-44F1-96D2-CECDEFC96F77}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RBTreeGui", "RBTreeGui\RBTreeGui.csproj", "{736997F1-266F-456B-8505-444A103E8CB5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlackTreeGui", "RBTreeGui\RedBlackTreeGui.csproj", "{736997F1-266F-456B-8505-444A103E8CB5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
