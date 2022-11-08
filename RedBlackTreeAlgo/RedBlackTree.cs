@@ -38,48 +38,61 @@ namespace RedBlackTreeAlgo
         }
         private void InsertFixup(Node node)
         {
-            while (node.P != null && node.P.Color == NodeColor.RED)
+            try
             {
-                if (node.P == node.G.Left)   //if parent is a left child
+                while (node.P != null && node.P.Color == NodeColor.RED)
                 {
-                    Node y = node.G.Right;
-                    if (y != null && y.Color == NodeColor.RED)
+                    if (node.P == node.G.Left)   //if parent is a left child
                     {
-                        node.P.Color = NodeColor.BLACK;
-                        y.Color = NodeColor.BLACK;
-                        node.G.Color = NodeColor.RED;
-                        node = node.G;
+                        Node y = node.G.Right;
+                        if (y != null && y.Color == NodeColor.RED)
+                        {
+                            node.P.Color = NodeColor.BLACK;
+                            y.Color = NodeColor.BLACK;
+                            node.G.Color = NodeColor.RED;
+                            node = node.G;
+                        }
+                        else if (node == node.P.Right)
+                        {
+                            node = node.P;
+                            LeftRotate(node);
+                        }
+                        else 
+                        { 
+                            node.P.Color = NodeColor.BLACK;
+                            node.G.Color = NodeColor.RED;
+                            RightRotate(node.G);
+                        }
                     }
-                    else if (node == node.P.Right)
+                    else //if parent is a right child
                     {
-                        node = node.P;
-                        LeftRotate(node);
-                        node.P.Color = NodeColor.BLACK;
-                        node.G.Color = NodeColor.RED;
-                        RightRotate(node.G);
+                        Node y = node.G.Left;
+                        if (y != null && y.Color == NodeColor.RED)
+                        {
+                            node.P.Color = NodeColor.BLACK;
+                            y.Color = NodeColor.BLACK;
+                            node.G.Color = NodeColor.RED;
+                            node = node.G;
+                        }
+                        else if (node == node.P.Left)
+                        {
+                            node = node.P;
+                            RightRotate(node);
+                        }
+                        else
+                        {
+                            node.P.Color = NodeColor.BLACK;
+                            node.G.Color = NodeColor.RED;
+                            LeftRotate(node.G);
+                        }
                     }
                 }
-                else //if parent is a right child
-                {
-                    Node y = node.G.Left;
-                    if (y != null && y.Color == NodeColor.RED)
-                    {
-                        node.P.Color = NodeColor.BLACK;
-                        y.Color = NodeColor.BLACK;
-                        node.G.Color = NodeColor.RED;
-                        node = node.G;
-                    }
-                    else if (node == node.P.Left)
-                    {
-                        node = node.P;
-                        RightRotate(node);
-                        node.P.Color = NodeColor.BLACK;
-                        node.G.Color = NodeColor.RED;
-                        LeftRotate(node.G);
-                    }
-                }
+                root.Color = NodeColor.BLACK;
             }
-            root.Color = NodeColor.BLACK;
+            catch (Exception e)
+            {
+                return;
+            }
         }
         private void LeftRotate(Node x)
         {

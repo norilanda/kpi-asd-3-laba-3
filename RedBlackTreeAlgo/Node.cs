@@ -46,9 +46,14 @@ namespace RedBlackTreeAlgo
             get => parent;
             set => parent = value;
         }
-        public Node G
-        {
-            get => parent.parent;
+        public Node? G
+        {            
+            get {
+                if (parent != null)
+                    return parent.parent;
+                return null;
+            }  
+
         }
         public NodeColor Color
         {
