@@ -52,13 +52,13 @@ namespace RedBlackTreeAlgo
                             node.G.Color = NodeColor.RED;
                             node = node.G;
                         }
-                        else if (node == node.P.Right)
-                        {
-                            node = node.P;
-                            LeftRotate(node);
-                        }
                         else 
-                        { 
+                        {
+                            if (node == node.P.Right)
+                            {
+                                node = node.P;
+                                LeftRotate(node);
+                            }
                             node.P.Color = NodeColor.BLACK;
                             node.G.Color = NodeColor.RED;
                             RightRotate(node.G);
@@ -74,17 +74,17 @@ namespace RedBlackTreeAlgo
                             node.G.Color = NodeColor.RED;
                             node = node.G;
                         }
-                        else if (node == node.P.Left)
+                        else 
                         {
-                            node = node.P;
-                            RightRotate(node);
-                        }
-                        else
-                        {
+                            if (node == node.P.Left)
+                            {
+                                node = node.P;
+                                RightRotate(node);
+                            }
                             node.P.Color = NodeColor.BLACK;
                             node.G.Color = NodeColor.RED;
                             LeftRotate(node.G);
-                        }
+                        }                        
                     }
                 }
                 root.Color = NodeColor.BLACK;
