@@ -14,6 +14,11 @@ namespace RBTreeGui
                 if (!success)
                     MessageBox.Show("Smth went wrong!", "Error");
             }
+            Node? n = rbt.Search(4);
+            if (n != null)
+                MessageBox.Show("Node is found", "Node searching");
+            else
+                MessageBox.Show("Node is NOT found :( ", "Node searching");
         }
     }
 }

@@ -127,5 +127,18 @@ namespace RedBlackTreeAlgo
             y.Right = x;
             x.P = y;
         }
+
+        public Node? Search(int key)
+        {
+            Node? x = root;
+            while(x != null && x.Key != key)
+            {
+                if (key < x.Key)
+                    x = x.Left;
+                else
+                    x = x.Right;
+            }
+            return x;
+        }
     }
 }
