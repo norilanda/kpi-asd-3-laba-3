@@ -7,9 +7,13 @@ namespace RBTreeGui
         {
             InitializeComponent();
             RedBlackTree rbt =  new RedBlackTree();
-            int[] arr = { 3, 2, 1 }; //, 6, 4, 0
-            for (int i=0; i<arr.Length; i++)
-                rbt.Insert(arr[i], arr[i]);
+            int[] arr = { 3, 4, 5 }; //, 6, 4, 0
+            for (int i = 0; i < arr.Length; i++)
+            { 
+                bool success = rbt.Insert(arr[i], arr[i]);
+                if (!success)
+                    MessageBox.Show("Smth went wrong!", "Error");
+            }
         }
     }
 }

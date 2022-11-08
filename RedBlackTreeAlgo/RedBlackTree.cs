@@ -15,7 +15,7 @@ namespace RedBlackTreeAlgo
             root = null;
         }
         public Node? Root => root;
-        public void Insert(int key, int value)
+        public bool Insert(int key, int value)
         {
             Node? y = null;
             Node? x = root;
@@ -34,9 +34,9 @@ namespace RedBlackTreeAlgo
             else if (key < y.Key)
                 y.Left = node;
             else y.Right = node;
-            InsertFixup(node);
+            return InsertFixup(node);
         }
-        private void InsertFixup(Node node)
+        private bool InsertFixup(Node node)
         {
             try
             {
@@ -44,8 +44,8 @@ namespace RedBlackTreeAlgo
                 {
                     if (node.P == node.G.Left)   //if parent is a left child
                     {
-                        Node y = node.G.Right;
-                        if (y != null && y.Color == NodeColor.RED)
+                        Node y = node.G.Right;  //uncle
+                        if (y != null && y.Color == NodeColor.RED)  //case 1 (uncle is RED). Solution: recolor
                         {
                             node.P.Color = NodeColor.BLACK;
                             y.Color = NodeColor.BLACK;
@@ -54,20 +54,20 @@ namespace RedBlackTreeAlgo
                         }
                         else 
                         {
-                            if (node == node.P.Right)
-                            {
+                            if (node == node.P.Right)   //case 2 (uncle is black, triangle). Solution: transform case 2 into case 3 (rotate)
+                            {                                
                                 node = node.P;
                                 LeftRotate(node);
                             }
-                            node.P.Color = NodeColor.BLACK;
+                            node.P.Color = NodeColor.BLACK;    //case 3 (uncle is black, line). Solution: recolor and rotate
                             node.G.Color = NodeColor.RED;
                             RightRotate(node.G);
                         }
                     }
                     else //if parent is a right child
                     {
-                        Node y = node.G.Left;
-                        if (y != null && y.Color == NodeColor.RED)
+                        Node y = node.G.Left;   //uncle
+                        if (y != null && y.Color == NodeColor.RED)  //case 1 (uncle is RED). Solution: recolor
                         {
                             node.P.Color = NodeColor.BLACK;
                             y.Color = NodeColor.BLACK;
@@ -76,53 +76,56 @@ namespace RedBlackTreeAlgo
                         }
                         else 
                         {
-                            if (node == node.P.Left)
+                            if (node == node.P.Left)   //case 2 (uncle is black, triangle). Solution: transform case 2 into case 3 (rotate)
                             {
                                 node = node.P;
                                 RightRotate(node);
                             }
-                            node.P.Color = NodeColor.BLACK;
+                            node.P.Color = NodeColor.BLACK;    //case 3 (uncle is black, line). Solution: recolor and rotate
                             node.G.Color = NodeColor.RED;
                             LeftRotate(node.G);
                         }                        
                     }
                 }
-                root.Color = NodeColor.BLACK;
+                root.Color = NodeColor.BLACK;   //case 0 (node is root)
             }
             catch (Exception e)
             {
-                return;
+                return false;
             }
+            return true;
         }
         private void LeftRotate(Node x)
         {
-            Node temp = x.Right;
-            x.Right = temp.Left;
-            temp.Left.P = x;
-            temp.P = x.P;
+            Node y = x.Right;
+            x.Right = y.Left;
+            if (y.Left != null)
+                y.Left.P = x;
+            y.P = x.P;
             if (x.P == null)
-                root = temp;
+                root = y;
             else if (x == x.P.Left)
-                x.P.Left = temp;
+                x.P.Left = y;
             else
-                x.P.Right = temp;
-            temp.Left = x;
-            x.P = temp;
+                x.P.Right = y;
+            y.Left = x;
+            x.P = y;
         }
         private void RightRotate(Node x)
         {
-            Node temp = x.Left;
-            x.Left = temp.Right;
-            temp.Right.P = x;
-            temp.P = x.P;
+            Node y = x.Left;
+            x.Left = y.Right;
+            if (y.Right != null)
+                y.Right.P = x;
+            y.P = x.P;
             if (x.P == null)
-                root = temp;
+                root = y;
             else if (x == x.P.Right)
-                x.P.Right = temp;
+                x.P.Right = y;
             else
-                x.P.Left = temp;
-            temp.Right = x;
-            x.P = temp;
+                x.P.Left = y;
+            y.Right = x;
+            x.P = y;
         }
     }
 }
