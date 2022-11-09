@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,6 +16,18 @@ namespace RedBlackTreeAlgo
             root = null;
         }
         public Node? Root => root;
+        public Node? Search(int key)
+        {
+            Node? x = root;
+            while (x != null && x.Key != key)
+            {
+                if (key < x.Key)
+                    x = x.Left;
+                else
+                    x = x.Right;
+            }
+            return x;
+        }
         public bool Insert(int key, int value)
         {
             Node? y = null;
@@ -127,18 +140,131 @@ namespace RedBlackTreeAlgo
             y.Right = x;
             x.P = y;
         }
-
-        public Node? Search(int key)
+        public void Delete(int key)
         {
-            Node? x = root;
-            while(x != null && x.Key != key)
+            Node? node = Search(key);
+            if (node == null) return;
+            Node? x, y = node;
+            NodeColor yOriginalColor = y.Color;
+            if (node.Left == null)
             {
-                if (key < x.Key)
-                    x = x.Left;
-                else
-                    x = x.Right;
+                x = node.Right;
+                Transplant(node, node.Right);
             }
-            return x;
+            else if (node.Right == null)
+            {
+                x = node.Left;
+                Transplant(node, node.Left);
+            }
+            else
+            {
+                y = Minimum(node.Right);
+                yOriginalColor = y.Color;
+                x = y.Right;
+                if (x != null && y.P == node)
+                    x.P = y;
+                else
+                {
+                    Transplant(y, y.Right);
+                    y.Right = node.Right;   //insert successor instead of node
+                    if (y.Right!= null)
+                        y.Right.P = y;//null
+                }
+                Transplant(node, y);
+                y.Left = node.Left;
+                y.Left.P = y;
+                y.Color = node.Color;
+            }
+            if (yOriginalColor == NodeColor.BLACK)
+                Delete_Fixup(x);
+        }
+        private void Transplant(Node? u, Node? v)
+        {
+            if(u.P == null)
+                root = v;
+            else if (u == u.P.Left)
+                u.P.Left = v;
+            else
+                u.P.Right = v;
+            if (v != null)
+                v.P = u.P;
+        }
+        private void Delete_Fixup(Node x)
+        {
+            Node w; //sibling
+            while (x!=null && x != root && x.Color == NodeColor.BLACK)//
+            {
+                if (x == x.P.Left)  //if left child
+                {
+                    w = x.P.Right;
+                    if (w.Color == NodeColor.RED)
+                    {
+                        w.Color = NodeColor.BLACK;
+                        x.P.Color = NodeColor.RED;
+                        LeftRotate(x.P);
+                        w = x.P.Right;
+                    }
+                    if (w.Left.Color == NodeColor.BLACK && w.Right.Color == NodeColor.BLACK)
+                    {
+                        w.Color = NodeColor.RED;
+                        x = x.P;
+                    }
+                    else
+                    {
+                        if (w.Right.Color == NodeColor.BLACK)
+                        {
+                            w.Left.Color = NodeColor.BLACK;
+                            w.Color = NodeColor.RED;
+                            RightRotate(w);
+                            w = x.P.Right;
+                        }
+                        w.Color = x.P.Color;
+                        x.P.Color = NodeColor.BLACK;
+                        w.Right.Color = NodeColor.BLACK;
+                        LeftRotate(x.P);
+                        x = root;
+                    }
+                }
+                else //if right child
+                {
+                    w = x.P.Left;
+                    if (w.Color == NodeColor.RED)
+                    {
+                        w.Color = NodeColor.BLACK;
+                        x.P.Color = NodeColor.RED;
+                        RightRotate(x.P);
+                        w = x.P.Left;
+                    }
+                    if (w.Right.Color == NodeColor.BLACK && w.Left.Color == NodeColor.BLACK)
+                    {
+                        w.Color = NodeColor.RED;
+                        x = x.P;
+                    }
+                    else
+                    {
+                        if (w.Left.Color == NodeColor.BLACK)
+                        {
+                            w.Right.Color = NodeColor.BLACK;
+                            w.Color = NodeColor.RED;
+                            LeftRotate(w);
+                            w = x.P.Left;
+                        }
+                        w.Color = x.P.Color;
+                        x.P.Color = NodeColor.BLACK;
+                        w.Left.Color = NodeColor.BLACK;
+                        RightRotate(x.P);
+                        x = root;
+                    }
+                }
+            }
+        }
+        private Node Minimum(Node node)
+        {
+            while (node.Left != null)
+            {
+                node = node.Left;
+            }
+            return node;
         }
     }
 }
