@@ -93,16 +93,16 @@ namespace RedBlackTreeAlgo.DatabaseManager
         {
             const int LAST_BIT_POSITION = 7;
             int pos = 0;
-            this._key = BitConverter.ToInt32(bytes, pos+=sizeof(int));
+            this._key = BitConverter.ToInt32(bytes, pos);
             this._dataPage = BitConverter.ToInt32(bytes, pos += sizeof(int));
             byte[] offsetAndColor = new byte[sizeof(int)];
-            Array.Copy(bytes, pos, offsetAndColor, 0, sizeof(int));
+            Array.Copy(bytes, pos += sizeof(int), offsetAndColor, 0, sizeof(int));
             if ((offsetAndColor[^1] & (1 << LAST_BIT_POSITION)) == 0)
                 this._color = Color.RED;
             else
                 this._color = Color.BLACK;
             offsetAndColor[^1] = (byte)(bytes[^1] & ~(1 << LAST_BIT_POSITION));
-            pos += sizeof(int);
+
             this._dataOffset = BitConverter.ToInt32(offsetAndColor, 0); ;
             this._leftPage = BitConverter.ToInt32(bytes, pos += sizeof(int));
             this._leftOffset = BitConverter.ToInt32(bytes, pos += sizeof(int));
