@@ -34,15 +34,15 @@ namespace RedBlackTreeAlgo.DatabaseManager
             this._position = sizeof(int)*3+sizeof(Type)+ sizeof(bool);
             this._isDirty = false;
         }
-        public Page()
+        public Page(byte[] bytes)
         {
-            PageDeserialization();
+            PageDeserialization(bytes);
         }
         public void PageSerialization()
         {
 
         }
-        public void PageDeserialization()
+        public void PageDeserialization(byte[] bytes)
         {
 
         }
