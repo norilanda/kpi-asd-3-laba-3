@@ -25,11 +25,11 @@ namespace RedBlackTreeAlgo.DatabaseManager
             List<byte> metadata = new List<byte>();
             byte[] byteArr;
             text = text.ToLower();
-            string[] lines = text.Split(StatementDelim);
+            string[] lines = text.Split(StatementDelim);    //divide into statements
             for(int i=0; i<lines.Length; i++)
             {
                 string[] sublines = lines[i].Split(wordsDelim);
-                if (sublines[^1]== IntS)
+                if (sublines[^1]== IntS)    //if type is INT
                 {
                     byteArr = BitConverter.GetBytes(sizeof(int));
                     foreach (byte b in byteArr)
@@ -38,7 +38,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                     foreach (byte b in byteArr)
                         metadata.Add(b);                    
                 }
-                else if(sublines[^1] == DoubleS)
+                else if(sublines[^1] == DoubleS)    //if type is DOUBLE
                 {
                     byteArr = BitConverter.GetBytes(sizeof(double));
                     foreach (byte b in byteArr)
@@ -47,7 +47,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                     foreach (byte b in byteArr)
                         metadata.Add(b);
                 }
-                else if(sublines[^1].Contains(CharS))
+                else if(sublines[^1].Contains(CharS))   //if type is STRING
                 {
                     string valueType = sublines[^1];
                     int pos = valueType.IndexOf('(');

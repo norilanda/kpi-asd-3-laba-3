@@ -33,7 +33,63 @@ namespace RedBlackTreeAlgo.FileStructure
         private int _parentPage;
         private int _parentOffset;
 
-        public Record(int key, int page, int offset)
+        //helping vars
+        public int recordPage;
+        public int recordOffset;
+
+        //getters/setters
+        public int Key
+        {
+            get { return _key; }
+        }
+        public int Datapage
+        {
+            get { return _dataPage; }
+            set { _dataPage = value; }
+        }
+        public int DataOffset
+        {
+            get { return _dataOffset; }
+            set { _dataOffset = value; }
+        }
+        public Color Color
+        {
+            get { return _color; }
+            set { _color = value; }
+        }
+        public int LeftPage
+        {
+            get { return _leftPage; }
+            set { _leftPage = value; }
+        }
+        public int LeftOffset
+        {
+            get { return _leftOffset; }
+            set { _leftOffset = value; }
+        }
+        public int RightPage
+        {
+            get { return _rightPage; }
+            set { _rightPage = value; }
+        }
+        public int RightOffset
+        {
+            get { return _rightOffset; }
+            set { _rightOffset = value; }
+        }
+        public int ParentPage
+        {
+            get { return _parentPage; }
+            set { _parentPage = value; }
+        }
+        public int ParentOffset
+        {
+            get { return _parentPage; }
+            set { _parentPage = value; }
+        }
+
+        public static int RecordSize() { return sizeof(int) * 9; }
+        public Record(int key, int page, int offset, int recordPage, int recordOffset)
         {
             _key = key;
             _dataPage = page;
@@ -42,13 +98,18 @@ namespace RedBlackTreeAlgo.FileStructure
             _leftPage = _leftOffset = 0;
             _rightPage = _rightOffset = 0;
             _parentPage = _parentOffset = 0;
+            this.recordPage = recordPage;
+            this.recordOffset = recordOffset;
         }
-        public Record(byte[] bytes) { RecordDeserialization(bytes); }
+        public Record(byte[] bytes, int recordPage, int recordOffset) {
+            this.recordPage = recordPage;
+            this.recordOffset = recordOffset;
+            RecordDeserialization(bytes); }
         public byte[] RecordSerialization()
         {
             const int LAST_BIT_POSITION = 7;
             //Func<byte[], byte[], int, void> CopyField = (bytes, recordBytes, pos) => { } //maybe later
-            byte[] recordBytes = new byte[sizeof(int)*9];
+            byte[] recordBytes = new byte[RecordSize()];
             int pos = 0;
             byte[] bytes = BitConverter.GetBytes(_key);
             bytes.CopyTo(recordBytes, pos);
