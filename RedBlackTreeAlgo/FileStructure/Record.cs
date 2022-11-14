@@ -86,7 +86,6 @@ namespace RedBlackTreeAlgo.DatabaseManager
             pos += bytes.Length;
             bytes = BitConverter.GetBytes(_parentOffset);
             bytes.CopyTo(recordBytes, pos);
-            //pos += bytes.Length;
             return recordBytes;
         }
         public void RecordDeserialization(byte[] bytes)
