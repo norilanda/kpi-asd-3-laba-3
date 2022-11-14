@@ -2,7 +2,7 @@ namespace RBTreeGui
 {
     using RedBlackTreeAlgo;
     using RedBlackTreeAlgo.DatabaseManager;
-    using RedBlackTreeAlgo.FileStructure;
+
 
     public partial class Form1 : Form
     {
@@ -10,15 +10,7 @@ namespace RBTreeGui
         {
             InitializeComponent();
             string fileName = "file.txt";
-            BinaryWriter binaryWriter = new BinaryWriter(File.Open(fileName, FileMode.Create));
-            Record record = new Record(98, 1, 65536);
-            byte[] recordS = record.RecordSerialization();
-            binaryWriter.Write(recordS);
-            binaryWriter.Close();
-
-            BinaryReader br = new BinaryReader(File.Open(fileName, FileMode.Open));
-            byte[] bytesFromFile = br.ReadBytes(recordS.Length);
-            Record record2 = new Record(bytesFromFile);
+            DBManager.CreateDatabase(fileName);
 
             /*
             
