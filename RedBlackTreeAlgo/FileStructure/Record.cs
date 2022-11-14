@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RedBlackTreeAlgo.DatabaseManager
+namespace RedBlackTreeAlgo.FileStructure
 {
     public enum Color
     {
@@ -47,6 +47,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
         public byte[] RecordSerialization()
         {
             const int LAST_BIT_POSITION = 7;
+            //Func<byte[], byte[], int, void> CopyField = (bytes, recordBytes, pos) => { } //maybe later
             byte[] recordBytes = new byte[sizeof(int)*9];
             int pos = 0;
             byte[] bytes = BitConverter.GetBytes(_key);

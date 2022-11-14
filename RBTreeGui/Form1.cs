@@ -2,6 +2,7 @@ namespace RBTreeGui
 {
     using RedBlackTreeAlgo;
     using RedBlackTreeAlgo.DatabaseManager;
+    using RedBlackTreeAlgo.FileStructure;
 
     public partial class Form1 : Form
     {
