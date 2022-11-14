@@ -29,9 +29,23 @@ namespace RedBlackTreeAlgo.FileStructure
         private bool _isDirty;   //has been currently written or not // IS NOT added to file
 
         public byte[] buff;
+        public Dictionary<int, Record> records; //offset from page start, record
         //getters/setters
         public int Number => _number;
-       
+        public int Position
+        {
+            get { return _position; }
+            set { _position = value; }
+        }
+        public int FreeSpace
+        {
+            get { return _freeSpace; }
+            set { _freeSpace = value; }
+        }
+        public bool IsDirty{ 
+            get { return _isDirty; }
+            set { _isDirty = value; }
+        }
 
         public Page(int number, PageType type, int freeSpace)
         {
@@ -48,12 +62,27 @@ namespace RedBlackTreeAlgo.FileStructure
             byte[] header = new byte[pageHeaderSize];
             Array.Copy(buff, 0, header, 0, pageHeaderSize);
             PageDeserialization(header);
+            setRecords();
+        }
+        public void setRecords()
+        {
+            records = new Dictionary<int, Record>();
+            int currPos = pageHeaderSize;
+            while (currPos < _position)
+            {
+                records.Add(currPos, getRecord(currPos));
+                currPos += Record.RecordSize();
+            }
         }
         public Record getRecord(int offset)
         {
             byte[] record = new byte[recordSize];
             Array.Copy(buff, offset, record, 0, recordSize);
             return new Record(record, _number, offset);
+        }
+        public bool isEnoughSpace(int recordSize)
+        {
+            return _freeSpace >= recordSize;
         }
         public byte[] PageSerialization()
         {

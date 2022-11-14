@@ -34,8 +34,8 @@ namespace RedBlackTreeAlgo.FileStructure
         private int _parentOffset;
 
         //helping vars
-        public int recordPage;
-        public int recordOffset;
+        public int recordPage;  //in which page curr record is located
+        public int recordOffset;    //location where curr record is located
 
         //getters/setters
         public int Key
