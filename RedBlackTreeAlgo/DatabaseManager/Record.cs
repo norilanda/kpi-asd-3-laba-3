@@ -43,53 +43,73 @@ namespace RedBlackTreeAlgo.DatabaseManager
             _rightPage = _rightOffset = 0;
             _parentPage = _parentOffset = 0;
         }
-        public void RecordSerialization()
+        public Record(byte[] bytes) { RecordDeserialization(bytes); }
+        public byte[] RecordSerialization()
         {
             const int LAST_BIT_POSITION = 7;
             byte[] recordBytes = new byte[sizeof(int)*9];
             int pos = 0;
             byte[] bytes = BitConverter.GetBytes(_key);
-            recordBytes.CopyTo(bytes, pos);
+            bytes.CopyTo(recordBytes, pos);
             pos += bytes.Length;
 
             bytes = BitConverter.GetBytes(_dataPage);
-            recordBytes.CopyTo(bytes, pos);//!!!!!!!!!!lambda?
+            bytes.CopyTo(recordBytes, pos); //!!!!!!!!!!lambda?
             pos += bytes.Length;
             bytes = BitConverter.GetBytes(_dataOffset);
             if(!BitConverter.IsLittleEndian)//if big endian (important to color storage)
                 Array.Reverse(bytes);
 
             if (_color == Color.RED)    //storing the color as the less significant bit
-                bytes[bytes.Length - 1] = (byte)(bytes[bytes.Length - 1] &~ (1 << LAST_BIT_POSITION));
+                bytes[^1] = (byte)(bytes[^1] &~ (1 << LAST_BIT_POSITION));
             else
-                bytes[bytes.Length - 1] = (byte)(bytes[bytes.Length - 1]|(1 << LAST_BIT_POSITION));
-            recordBytes.CopyTo(bytes, pos);
+                bytes[^1] = (byte)(bytes[^1]|(1 << LAST_BIT_POSITION));
+            bytes.CopyTo(recordBytes, pos);
             pos += bytes.Length;
 
             bytes = BitConverter.GetBytes(_leftPage);
-            recordBytes.CopyTo(bytes, pos);
+            bytes.CopyTo(recordBytes, pos);
             pos += bytes.Length;
             bytes = BitConverter.GetBytes(_leftOffset);
-            recordBytes.CopyTo(bytes, pos);
+            bytes.CopyTo(recordBytes, pos);
             pos += bytes.Length;
 
             bytes = BitConverter.GetBytes(_rightPage);
-            recordBytes.CopyTo(bytes, pos);
+            bytes.CopyTo(recordBytes, pos);
             pos += bytes.Length;
             bytes = BitConverter.GetBytes(_rightOffset);
-            recordBytes.CopyTo(bytes, pos);
+            bytes.CopyTo(recordBytes, pos);
             pos += bytes.Length;
 
             bytes = BitConverter.GetBytes(_parentPage);
-            recordBytes.CopyTo(bytes, pos);
+            bytes.CopyTo(recordBytes, pos);
             pos += bytes.Length;
             bytes = BitConverter.GetBytes(_parentOffset);
-            recordBytes.CopyTo(bytes, pos);
-            pos += bytes.Length;
+            bytes.CopyTo(recordBytes, pos);
+            //pos += bytes.Length;
+            return recordBytes;
         }
-        public void RecordDeserialization()
+        public void RecordDeserialization(byte[] bytes)
         {
-
+            const int LAST_BIT_POSITION = 7;
+            int pos = 0;
+            this._key = BitConverter.ToInt32(bytes, pos+=sizeof(int));
+            this._dataPage = BitConverter.ToInt32(bytes, pos += sizeof(int));
+            byte[] offsetAndColor = new byte[sizeof(int)];
+            Array.Copy(bytes, pos, offsetAndColor, 0, sizeof(int));
+            if ((offsetAndColor[^1] & (1 << LAST_BIT_POSITION)) == 0)
+                this._color = Color.RED;
+            else
+                this._color = Color.BLACK;
+            offsetAndColor[^1] = (byte)(bytes[^1] & ~(1 << LAST_BIT_POSITION));
+            pos += sizeof(int);
+            this._dataOffset = BitConverter.ToInt32(offsetAndColor, 0); ;
+            this._leftPage = BitConverter.ToInt32(bytes, pos += sizeof(int));
+            this._leftOffset = BitConverter.ToInt32(bytes, pos += sizeof(int));
+            this._rightPage = BitConverter.ToInt32(bytes, pos += sizeof(int));
+            this._rightOffset = BitConverter.ToInt32(bytes, pos += sizeof(int));
+            this._parentPage = BitConverter.ToInt32(bytes, pos += sizeof(int));
+            this._parentOffset = BitConverter.ToInt32(bytes, pos += sizeof(int));
         }
     }
 }
