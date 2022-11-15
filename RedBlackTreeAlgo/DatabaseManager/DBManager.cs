@@ -42,7 +42,8 @@ namespace RedBlackTreeAlgo.DatabaseManager
 
             Page dataPage = new Page(1, PageType.data, spacePerPage - Page.pageHeaderSize);
             byte[] DataPageBytes = new byte[spacePerPage];
-            byte[] dataPageHeader = indexPage.PageSerialization();
+            byte[] dataPageHeader = dataPage.PageSerialization();
+            dataPageHeader.CopyTo(DataPageBytes, 0);
 
             int currIndexPage = 0;
             int currDataPage = 1;
