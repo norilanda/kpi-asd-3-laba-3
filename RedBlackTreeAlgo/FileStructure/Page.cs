@@ -80,6 +80,11 @@ namespace RedBlackTreeAlgo.FileStructure
             Array.Copy(buff, offset, record, 0, recordSize);
             return new Record(record, _number, offset);
         }
+        public void setRecord(int offset, Record record)
+        {
+            records[offset] = record;
+            _isDirty= true;
+        }
         public void AddData(byte[] data)
         {
             data.CopyTo(buff, _position);

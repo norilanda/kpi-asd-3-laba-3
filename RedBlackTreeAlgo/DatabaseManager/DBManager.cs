@@ -14,7 +14,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
     public class DBManager
     {
         private static int spacePerPage = Page.pageSizeTotal;    //space for each page in bytes
-        private static int offsetFromStart = sizeof(int) * 2;   //indicates the pages start
+        private static int offsetFromStart = sizeof(int) * 4;   //indicates the pages start
         private static int pageHeaderSize = Page.pageHeaderSize;
         private static int recordSize = Record.RecordSize();
 
@@ -62,6 +62,8 @@ namespace RedBlackTreeAlgo.DatabaseManager
             bw = new BinaryWriter(File.Open(name, FileMode.Create));
             bw.Write(currIndexPage);  //storing current index page number
             bw.Write(currDataPage);   //storing current data page number
+            bw.Write(new byte[sizeof(int)]);  //storing root page 
+            bw.Write(BitConverter.GetBytes(pageHeaderSize)); //storing root offset
             bw.Write(IndexPageBytes);
             bw.Write(DataPageBytes);
             bw.Close();
@@ -69,10 +71,9 @@ namespace RedBlackTreeAlgo.DatabaseManager
         }
         public bool Insert(int key, byte[] data)
         {
-            Page currPage = buffManager.getPageWithNumber(0);
             Record? y = null;
-            Record? x = currPage.getRecord(pageHeaderSize);
-            while(x.Datapage!= 0 && x.DataOffset!= 0 )//while x != null
+            Record? x = buffManager.getRoot();
+            while(!x.isNull())//while x != null
             {
                 y = x;
                 if (key < x.Key)
@@ -88,108 +89,75 @@ namespace RedBlackTreeAlgo.DatabaseManager
             Page currIndexPage = buffManager.getCurrIndexPage();
             if (!currIndexPage.isEnoughSpace(recordSize))
                 currIndexPage = buffManager.CreateNewPage(PageType.index);                  
-            Record record = new Record(key, currDataPage.Number, currDataPage.Position-data.Length, currIndexPage.Number, currIndexPage.Position);
+            Record record = new Record(key, currDataPage.Number, currDataPage.Position-data.Length, currIndexPage.Number, currIndexPage.Position);  //creating record with reference to written data
             if ( y != null )
             {
-                record.ParentPage = y.recordPage;
-                record.ParentOffset = y.recordOffset;
+                buffManager.setParent(record, y);   //set record parent to y
                 if(key < y.Key)
-                {
-                    y.LeftPage = record.recordPage;
-                    y.LeftOffset = record.recordOffset;//!!!!!!!!!Write later to buff
-                }
+                    buffManager.setLeft(y, record);
                 else
-                {
-                    y.RightPage= record.recordPage;
-                    y.RightOffset = record.recordOffset;
-                }
+                    buffManager.setRight(y, record);
             }
             else
-            {//root = node
-                record.ParentPage = 0;
-                record.ParentOffset = 0;
-            }
-            /*
-            Node? y = null;
-            Node? x = root;
-            while (x != null)
-            {
-                y = x;
-                if (key < x.Key)
-                    x = x.Left;
-                else
-                    x = x.Right;
-            }
-            Node node = new Node(key, value);
-            node.P = y;
-            if (y == null)
-                root = node;
-            else if (key < y.Key)
-                y.Left = node;
-            else y.Right = node;
-             */
+                buffManager.setRoot(record);//root = record
+        
             return InsertFixup(record);
         }
         private bool InsertFixup(Record record)
         {
            while(record.ParentOffset!=0 && buffManager.getParent(record).Color == Color.RED)
             {
-                if (Record.AreEqual(buffManager.getParent(record), buffManager.getLeft(buffManager.getGrandparent(record)) ))
+                if (Record.AreEqual(buffManager.getParent(record), buffManager.getLeft(buffManager.getGrandparent(record)) ))   //if parent is a left child
                 {
-
+                    Record y = buffManager.getRight(buffManager.getGrandparent(record));  //uncle
+                    if (!y.isNull() && y.Color == Color.RED)   //case 1 (uncle is RED). Solution: recolor
+                    {
+                        buffManager.setColor(buffManager.getParent(record), Color.BLACK);   //set parent color to black
+                        buffManager.setColor(y, Color.BLACK);   //set uncle color to black
+                        buffManager.setColor(buffManager.getGrandparent(record), Color.RED);    //set grandparent color to red
+                        record = buffManager.getGrandparent(record);    //record = record.Grandparent
+                    }
+                    else
+                    {
+                        //case 2 (uncle is black, triangle). Solution: transform case 2 into case 3 (rotate)
+                        if (Record.AreEqual(record, buffManager.getRight(buffManager.getParent(record)) ))
+                        {
+                            record = buffManager.getParent(record);
+                            buffManager.LeftRotate(record);
+                        }
+                        //case 3 (uncle is black, line). Solution: recolor and rotate
+                        buffManager.setColor(buffManager.getParent(record), Color.BLACK);
+                        buffManager.setColor(buffManager.getGrandparent(record), Color.RED);
+                        buffManager.RightRotate(buffManager.getGrandparent(record));//RightRotate(node.G)
+                    }
+                }
+                else //if parent is a right child
+                {
+                    Record y = buffManager.getLeft(buffManager.getGrandparent(record));  //uncle
+                    if (!y.isNull() && y.Color == Color.RED)   //case 1 (uncle is RED). Solution: recolor
+                    {
+                        buffManager.setColor(buffManager.getParent(record), Color.BLACK);   //set parent color to black
+                        buffManager.setColor(y, Color.BLACK);   //set uncle color to black
+                        buffManager.setColor(buffManager.getGrandparent(record), Color.RED);    //set grandparent color to red
+                        record = buffManager.getGrandparent(record);    //record = record.Grandparent
+                    }
+                    else
+                    {
+                        //case 2 (uncle is black, triangle). Solution: transform case 2 into case 3 (rotate)
+                        if (Record.AreEqual(record, buffManager.getLeft(buffManager.getParent(record))))
+                        {
+                            record = buffManager.getParent(record);
+                            buffManager.RightRotate(record);
+                        }
+                        //case 3 (uncle is black, line). Solution: recolor and rotate
+                        buffManager.setColor(buffManager.getParent(record), Color.BLACK);
+                        buffManager.setColor(buffManager.getGrandparent(record), Color.RED);
+                        buffManager.RightRotate(buffManager.getGrandparent(record));//RightRotate(node.G)
+                    }
                 }
             }
-            return true;
-            /*
-             while (node.P != null && node.P.Color == NodeColor.RED)
-                {
-        -            if (node.P == node.G.Left)   //if parent is a left child
-                    {
-                        Node y = node.G.Right;  //uncle
-                        if (y != null && y.Color == NodeColor.RED)  //case 1 (uncle is RED). Solution: recolor
-                        {
-                            node.P.Color = NodeColor.BLACK;
-                            y.Color = NodeColor.BLACK;
-                            node.G.Color = NodeColor.RED;
-                            node = node.G;
-                        }
-                        else 
-                        {
-                            if (node == node.P.Right)   //case 2 (uncle is black, triangle). Solution: transform case 2 into case 3 (rotate)
-                            {                                
-                                node = node.P;
-                                LeftRotate(node);
-                            }
-                            node.P.Color = NodeColor.BLACK;    //case 3 (uncle is black, line). Solution: recolor and rotate
-                            node.G.Color = NodeColor.RED;
-                            RightRotate(node.G);
-                        }
-                    }
-                    else //if parent is a right child
-                    {
-                        Node y = node.G.Left;   //uncle
-                        if (y != null && y.Color == NodeColor.RED)  //case 1 (uncle is RED). Solution: recolor
-                        {
-                            node.P.Color = NodeColor.BLACK;
-                            y.Color = NodeColor.BLACK;
-                            node.G.Color = NodeColor.RED;
-                            node = node.G;
-                        }
-                        else 
-                        {
-                            if (node == node.P.Left)   //case 2 (uncle is black, triangle). Solution: transform case 2 into case 3 (rotate)
-                            {
-                                node = node.P;
-                                RightRotate(node);
-                            }
-                            node.P.Color = NodeColor.BLACK;    //case 3 (uncle is black, line). Solution: recolor and rotate
-                            node.G.Color = NodeColor.RED;
-                            LeftRotate(node.G);
-                        }                        
-                    }
-                }
-                root.Color = NodeColor.BLACK;   //case 0 (node is root)
-             */
+            buffManager.setColor(buffManager.getRoot(), Color.BLACK);   //case 0 (node is root)
+            return true;            
         }
     }
 }

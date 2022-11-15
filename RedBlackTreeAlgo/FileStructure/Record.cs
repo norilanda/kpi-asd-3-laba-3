@@ -114,6 +114,12 @@ namespace RedBlackTreeAlgo.FileStructure
                 return false;
             return true;
         }
+        public bool isNull()
+        {
+            if (_dataOffset == 0)
+                return true;
+            return false;
+        }
         public byte[] RecordSerialization()
         {
             const int LAST_BIT_POSITION = 7;
