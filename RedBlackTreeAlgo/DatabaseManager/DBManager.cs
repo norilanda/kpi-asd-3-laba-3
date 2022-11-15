@@ -18,28 +18,15 @@ namespace RedBlackTreeAlgo.DatabaseManager
         private static int pageHeaderSize = Page.pageHeaderSize;
         private static int recordSize = Record.RecordSize();
 
-        private string? currDB;
-        private BinaryWriter? binaryWriter;
-        private BinaryReader? binaryReader;
+        private string? currDB;       
         
         private BufferManager buffManager;
         public DBManager(string name)
-        {
-            binaryWriter = null;
-            binaryReader = null;
+        {     
             currDB = name;
-            //Use(name);
-            buffManager = new BufferManager(currDB);
+            buffManager = new BufferManager(name);
         }
-        //public void Use(string? dbName)
-        //{
-        //    if (dbName != null)
-        //    {
-        //        currDB = dbName;
-        //        binaryReader = new BinaryReader(File.Open(currDB, FileMode.Open));
-        //        binaryReader.Close();
-        //    }
-        //}
+       
         public static bool CreateDatabase(string name, byte[] metadata)
         {
             //check name ? maybe later

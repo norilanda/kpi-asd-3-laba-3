@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -13,9 +14,8 @@ namespace RedBlackTreeAlgo.DatabaseManager
     public class BufferManager
     {
         private Dictionary<int, Page> bufferPool;   //page number, page
-        private string? currDB;
-        private BinaryWriter? binaryWriter;
-        private BinaryReader? binaryReader;
+        private string currDB;
+ 
         private static int spacePerPage = Page.pageSizeTotal;
         private static int offsetFromStart = sizeof(int) * 4;
         private static int pageHeaderSize = Page.pageHeaderSize;
@@ -23,39 +23,28 @@ namespace RedBlackTreeAlgo.DatabaseManager
         private int currDataPageNumb;
         private int rootPage;
         private int rootOffset;
+
+        private bool needToWriteCurrPage; //start of file
         private bool needToWriteRoot;
 
-        public BufferManager(string? dbName)
+        public BufferManager(string dbName)
         {
-            binaryWriter = null;
-            binaryReader = null;
             currDB = dbName;
             bufferPool = new Dictionary<int, Page>();
-            StartRead();
-            currIndexPageNumb = binaryReader.ReadInt32();
-            currDataPageNumb = binaryReader.ReadInt32();
-            rootPage = binaryReader.ReadInt32();
-            rootOffset = binaryReader.ReadInt32();
+            //StartRead();
+            using (var stream = File.Open(currDB, FileMode.Open))
+            {
+                using(var binaryReader = new BinaryReader(stream))
+                {
+                    currIndexPageNumb = binaryReader.ReadInt32();
+                    currDataPageNumb = binaryReader.ReadInt32();
+                    rootPage = binaryReader.ReadInt32();
+                    rootOffset = binaryReader.ReadInt32();
+                }
+            }            
             needToWriteRoot = false;
         }
-        private void StartRead()
-        {
-            if (binaryWriter != null)
-                binaryWriter.Close();
-            if (binaryReader != null) binaryReader.Close();
-            binaryReader = new BinaryReader(File.Open(currDB, FileMode.Open));
-        }
-        private void StartWrite(FileMode mode = FileMode.Open)
-        {
-            if (binaryReader != null) binaryReader.Close();
-            if (binaryWriter != null) binaryWriter.Close();
-            binaryWriter = new BinaryWriter(File.Open(currDB, mode));
-        }
-        private void StopWrite()
-        {
-            if (binaryWriter != null)
-                binaryWriter.Close();
-        }
+             
         public Page getCurrDataPage()
         {
             return getPageWithNumber(currDataPageNumb);
@@ -77,8 +66,16 @@ namespace RedBlackTreeAlgo.DatabaseManager
         }
         public byte[] ReadPageWithNumber(int number)
         {
-            binaryReader.BaseStream.Position = offsetFromStart + spacePerPage * number;
-            return binaryReader.ReadBytes(spacePerPage);
+            byte[] bytes;
+            using (var stream = File.Open(currDB, FileMode.Open))
+            {
+                using (var binaryReader = new BinaryReader(stream))
+                {
+                    binaryReader.BaseStream.Position = offsetFromStart + spacePerPage * number;
+                    bytes = binaryReader.ReadBytes(spacePerPage);
+                }
+            }
+            return bytes;
         }
         public Page CreateNewPage(PageType type)
         {
@@ -86,13 +83,12 @@ namespace RedBlackTreeAlgo.DatabaseManager
             Page currPage = new Page(newPageNum, type, spacePerPage - Page.pageHeaderSize);
             WriteNewPage(currPage); //write it to file
             bufferPool.Add(currPage.Number, currPage); //add to dictionary
-            StopWrite();
-            StartWrite();
             if (type == PageType.index)
-                binaryWriter.BaseStream.Position = 0;//set position to the start (index page number)
+                currIndexPageNumb = newPageNum;
             else
-                binaryWriter.BaseStream.Position = 4;//set position to the 2-nd int (data page number)
-            binaryWriter.Write(BitConverter.GetBytes(newPageNum));
+                currDataPageNumb = newPageNum;
+            needToWriteCurrPage = true;
+            
             return currPage;
         }
         public int calcNumberOfNewPage()
@@ -102,32 +98,51 @@ namespace RedBlackTreeAlgo.DatabaseManager
         }
         public void WriteNewPage(Page page)
         {
-            StartWrite(FileMode.Append);
-            binaryWriter.Write(page.PageSerialization());
+            using (var stream = File.Open(currDB, FileMode.Append))
+            {
+                using (var binaryWriter = new BinaryWriter(stream))
+                {
+                    binaryWriter.Write(page.PageSerialization());
+                }
+            }            
         }
-        private void WritePage(Page page)
+        private void WritePage(BinaryWriter bw, Page page)
         {
             byte[] bytes = page.getFullPageBytes();
-            binaryWriter.BaseStream.Position = offsetFromStart + page.Number * spacePerPage;
-            binaryWriter.Write(bytes);
+            bw.BaseStream.Position = offsetFromStart + page.Number * spacePerPage;
+            bw.Write(bytes);
         }
         public void CleanPagesAndWriteRoot() 
         {
-            StartWrite();
-            foreach (KeyValuePair<int, Page> p in bufferPool)
+            using (var stream = File.Open(currDB, FileMode.Open))
             {
-                if (p.Value.IsDirty)
+                using (var binaryWriter = new BinaryWriter(stream))
                 {
-                    WritePage(p.Value);
-                    p.Value.IsDirty = false;
+                    foreach (KeyValuePair<int, Page> p in bufferPool)
+                    {
+                        if (p.Value.IsDirty)
+                        {
+                            WritePage(binaryWriter, p.Value);
+                            p.Value.IsDirty = false;
+                        }
+                    }
+                    if (needToWriteRoot)//write root
+                    {
+                        binaryWriter.BaseStream.Position = sizeof(int) * 2;
+                        binaryWriter.Write(BitConverter.GetBytes(rootPage));
+                        binaryWriter.Write(BitConverter.GetBytes(rootOffset));
+                        needToWriteRoot = false;
+                    }
+                    if (needToWriteCurrPage)
+                    {
+                        binaryWriter.BaseStream.Position = 0;//set position to the start (index page number)
+                        binaryWriter.Write(BitConverter.GetBytes(currIndexPageNumb));
+                        binaryWriter.BaseStream.Position = 4;//set position to the 2-nd int (data page number)
+                        binaryWriter.Write(BitConverter.GetBytes(currDataPageNumb));
+                        needToWriteCurrPage = false;
+                    }
                 }
-            }
-            if (needToWriteRoot)//write root
-            {
-                binaryWriter.BaseStream.Position = sizeof(int) * 2;
-                binaryWriter.Write(BitConverter.GetBytes(rootPage));
-                binaryWriter.Write(BitConverter.GetBytes(rootOffset));
-            }
+            }            
         }
 
         //----------------------------------------------------------------------------------
