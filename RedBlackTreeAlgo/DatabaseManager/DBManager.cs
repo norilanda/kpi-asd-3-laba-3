@@ -152,5 +152,33 @@ namespace RedBlackTreeAlgo.DatabaseManager
             buffManager.setColor(buffManager.getRoot(), Color.BLACK);   //case 0 (node is root)
             return true;            
         }
+        public byte[]? Search(int key)
+        {
+            byte[] data = new byte[BufferManager.dataSpace];
+            Record? x = buffManager.getRoot();
+            while (x != null && !x.isNull() && x.Key != key)
+            {
+                if (key < x.Key)
+                    x = buffManager.getRecordFromPage(x.LeftPage, x.LeftOffset);
+                else
+                    x = buffManager.getRecordFromPage(x.RightPage, x.RightOffset);
+            }
+            if (x == null)
+                return null;
+            data = buffManager.ReadDataFromPage(x.Datapage, x.DataOffset, data.Length);
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            return data;
+            /*
+            Node? x = root;
+            while (x != null && x.Key != key)
+            {
+                if (key < x.Key)
+                    x = x.Left;
+                else
+                    x = x.Right;
+            }
+            return x;
+            */
+        }
     }
 }

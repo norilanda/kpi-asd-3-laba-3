@@ -17,6 +17,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
         private string currDB;
  
         private static int spacePerPage = Page.pageSizeTotal;
+        public static int dataSpace;
         private static int offsetFromStart = sizeof(int) * 4;
         private static int pageHeaderSize = Page.pageHeaderSize;
         private int currIndexPageNumb;
@@ -31,7 +32,6 @@ namespace RedBlackTreeAlgo.DatabaseManager
         {
             currDB = dbName;
             bufferPool = new Dictionary<int, Page>();
-            //StartRead();
             using (var stream = File.Open(currDB, FileMode.Open))
             {
                 using(var binaryReader = new BinaryReader(stream))
@@ -41,10 +41,36 @@ namespace RedBlackTreeAlgo.DatabaseManager
                     rootPage = binaryReader.ReadInt32();
                     rootOffset = binaryReader.ReadInt32();
                 }
-            }            
+            }
+            getDataSpace();
             needToWriteRoot = false;
         }
-             
+        private void getDataSpace()
+        {
+            string metadataFileName = currDB + "Meta";
+            using (var stream = File.Open(metadataFileName, FileMode.Open))
+            {
+                using (var binaryReader = new BinaryReader(stream))
+                {
+                    dataSpace = binaryReader.ReadInt32();
+                }
+            }
+        }
+        public byte[] ReadDataFromPage(int pageNumber, int recordOffset, int lenght)
+        {
+            byte[] data = new byte[lenght];
+            Page p = getPageWithNumber(pageNumber);
+            using (var stream = File.Open(currDB, FileMode.Open))
+            {
+                using (var binaryReader = new BinaryReader(stream))
+                {
+                    binaryReader.BaseStream.Position = recordOffset;
+                    data = binaryReader.ReadBytes(lenght);
+                }
+            }
+            return data;
+        }
+
         public Page getCurrDataPage()
         {
             return getPageWithNumber(currDataPageNumb);

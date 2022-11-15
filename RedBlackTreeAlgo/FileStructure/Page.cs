@@ -100,6 +100,7 @@ namespace RedBlackTreeAlgo.FileStructure
         public void AddRecord(Record record)
         {
             records.Add(record.recordOffset, record);
+            _freeSpace -= recordSize;
             _position += recordSize;
             _isDirty = true;
         }

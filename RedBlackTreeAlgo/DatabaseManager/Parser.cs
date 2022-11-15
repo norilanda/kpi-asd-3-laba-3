@@ -18,6 +18,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
 
         public static byte[] CreateMetadataForDB(string text)
         {
+            //size-of-one-record
             // size-letter-strLenght-str
             //column_name type
             const char StatementDelim = ',';
@@ -25,6 +26,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
             List<byte> metadata = new List<byte>();
             byte[] byteArr;
             text = text.ToLower();
+            int totalSize = 0;
             string[] lines = text.Split(StatementDelim);    //divide into statements
             for(int i=0; i<lines.Length; i++)
             {
@@ -36,7 +38,8 @@ namespace RedBlackTreeAlgo.DatabaseManager
                         metadata.Add(b);
                     byteArr = BitConverter.GetBytes(IntCh);
                     foreach (byte b in byteArr)
-                        metadata.Add(b);                    
+                        metadata.Add(b);
+                    totalSize += sizeof(int);
                 }
                 else if(sublines[^1] == DoubleS)    //if type is DOUBLE
                 {
@@ -46,6 +49,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                     byteArr = BitConverter.GetBytes(DoubleCh);
                     foreach (byte b in byteArr)
                         metadata.Add(b);
+                    totalSize += sizeof(double);
                 }
                 else if(sublines[^1].Contains(CharS))   //if type is STRING
                 {
@@ -59,6 +63,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                         pos++;
                     }
                     int lenghtOfString = Convert.ToInt32(lenght);
+                    totalSize += lenghtOfString;
                     byteArr = BitConverter.GetBytes(lenghtOfString);
                     foreach (byte b in byteArr)
                         metadata.Add(b);
@@ -74,7 +79,11 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 foreach (byte b in byteArr)
                     metadata.Add(b);
             }
-            return metadata.ToArray();
+            byte[] byteTotalSize = BitConverter.GetBytes(totalSize);
+            byte[] finalMetadata = new byte[metadata.Count + byteTotalSize.Length];
+            byteTotalSize.CopyTo(finalMetadata, 0);
+            metadata.ToArray().CopyTo(finalMetadata, byteTotalSize.Length);
+            return finalMetadata;
         }
     }
 }
