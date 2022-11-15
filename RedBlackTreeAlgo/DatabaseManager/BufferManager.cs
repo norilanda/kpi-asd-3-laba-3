@@ -96,6 +96,24 @@ namespace RedBlackTreeAlgo.DatabaseManager
             StartWrite(FileMode.Append);
             binaryWriter.Write(page.PageSerialization());
         }
-        public void WritePage(Page page) { }
+        //public void WritePage(Page page) { }
+        
+        //records manipulations
+        public Record getParent(Record record)
+        {
+            return getRecordFromPage(record.ParentPage, record.ParentOffset);
+        }
+        public Record getGrandparent(Record record)
+        {
+            return getParent(getParent(record));
+        }
+        public Record getLeft(Record record)
+        {
+            return getRecordFromPage(record.LeftPage, record.LeftOffset);
+        }
+        public Record getRight(Record record)
+        {
+            return getRecordFromPage(record.RightPage, record.RightOffset);
+        }
     }
 }

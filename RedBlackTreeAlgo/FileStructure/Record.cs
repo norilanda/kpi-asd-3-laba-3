@@ -101,10 +101,19 @@ namespace RedBlackTreeAlgo.FileStructure
             this.recordPage = recordPage;
             this.recordOffset = recordOffset;
         }
-        public Record(byte[] bytes, int recordPage, int recordOffset) {
+        public Record(byte[] bytes, int recordPage, int recordOffset) 
+        {
             this.recordPage = recordPage;
             this.recordOffset = recordOffset;
             RecordDeserialization(bytes); }
+        public static bool AreEqual(Record record1, Record record2)
+        {
+            if (record1.recordPage != record2.recordPage)
+                return false;
+            if (record1.recordOffset != record2.recordOffset) 
+                return false;
+            return true;
+        }
         public byte[] RecordSerialization()
         {
             const int LAST_BIT_POSITION = 7;

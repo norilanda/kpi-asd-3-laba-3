@@ -132,12 +132,18 @@ namespace RedBlackTreeAlgo.DatabaseManager
         }
         private bool InsertFixup(Record record)
         {
-           // while(record.ParentOffset!=0 && record.P)
+           while(record.ParentOffset!=0 && buffManager.getParent(record).Color == Color.RED)
+            {
+                if (Record.AreEqual(buffManager.getParent(record), buffManager.getLeft(buffManager.getGrandparent(record)) ))
+                {
+
+                }
+            }
             return true;
             /*
              while (node.P != null && node.P.Color == NodeColor.RED)
                 {
-                    if (node.P == node.G.Left)   //if parent is a left child
+        -            if (node.P == node.G.Left)   //if parent is a left child
                     {
                         Node y = node.G.Right;  //uncle
                         if (y != null && y.Color == NodeColor.RED)  //case 1 (uncle is RED). Solution: recolor
