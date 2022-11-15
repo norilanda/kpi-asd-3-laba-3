@@ -54,7 +54,7 @@ namespace RedBlackTreeAlgo.FileStructure
             this._freeSpace = freeSpace;
             this._position = pageHeaderSize;
             this._isDirty = false;
-            this.buff = new byte[pageHeaderSize];
+            this.buff = new byte[pageSizeTotal];
         }
         public Page(byte[] buff)
         {
@@ -79,6 +79,13 @@ namespace RedBlackTreeAlgo.FileStructure
             byte[] record = new byte[recordSize];
             Array.Copy(buff, offset, record, 0, recordSize);
             return new Record(record, _number, offset);
+        }
+        public void AddData(byte[] data)
+        {
+            data.CopyTo(buff, _position);
+            _position += data.Length;   //move pointer to next position
+            _freeSpace -= data.Length;
+            _isDirty = true;
         }
         public bool isEnoughSpace(int recordSize)
         {

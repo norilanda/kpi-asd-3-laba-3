@@ -10,8 +10,7 @@ namespace RBTreeGui
         {
             InitializeComponent();
             string fileName = "file.txt";
-            DBManager dBManager = new DBManager();
-            dBManager.CurrDB = fileName;
+            DBManager dBManager = new DBManager(fileName);
             byte[] b = Parser.CreateMetadataForDB("id int, lake char(15)");
             //dBManager.CreateDatabase(fileName, b);
             dBManager.Insert(3,b);

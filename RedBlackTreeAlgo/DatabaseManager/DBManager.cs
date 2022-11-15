@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using RedBlackTreeAlgo.FileStructure;
 using System.Reflection;
 using System.IO;
+using System.Xml.Linq;
 
 namespace RedBlackTreeAlgo.DatabaseManager
 {
@@ -18,41 +19,34 @@ namespace RedBlackTreeAlgo.DatabaseManager
         private static int recordSize = Record.RecordSize();
 
         private string? currDB;
-        BinaryWriter? binaryWriter;
-        BinaryReader? binaryReader;
-        int currIndexPageNumb;
-        int currDataPageNumb;
-        bool needToWriteNewCurrPageNum;
-        public DBManager(string? name=null)
+        private BinaryWriter? binaryWriter;
+        private BinaryReader? binaryReader;
+        
+        private BufferManager buffManager;
+        public DBManager(string name)
         {
             binaryWriter = null;
             binaryReader = null;
-            needToWriteNewCurrPageNum = false;
-            Use(name);
+            currDB = name;
+            //Use(name);
+            buffManager = new BufferManager(currDB);
         }
-        public string CurrDB
-        {
-            get { return currDB; }
-            set { currDB = value; }            
-        }
-        public void Use(string? dbName)
-        {
-            if (dbName != null)
-            {
-                currDB = dbName;
-                binaryReader = new BinaryReader(File.Open(currDB, FileMode.Open));
-                currIndexPageNumb = binaryReader.ReadInt32();
-                currDataPageNumb = binaryReader.ReadInt32();
-                binaryReader.Close();
-            }
-        }
-        public bool CreateDatabase(string name, byte[] metadata)
+        //public void Use(string? dbName)
+        //{
+        //    if (dbName != null)
+        //    {
+        //        currDB = dbName;
+        //        binaryReader = new BinaryReader(File.Open(currDB, FileMode.Open));
+        //        binaryReader.Close();
+        //    }
+        //}
+        public static bool CreateDatabase(string name, byte[] metadata)
         {
             //check name ? maybe later
             //store metadata in separate file
-            binaryWriter = new BinaryWriter(File.Open(name+"Meta", FileMode.Create));
-            binaryWriter.Write(metadata);
-            binaryWriter.Close();
+            BinaryWriter bw = new BinaryWriter(File.Open(name+"Meta", FileMode.Create));
+            bw.Write(metadata);
+            bw.Close();
             //create file to store data
             Page indexPage = new Page(0, PageType.index, spacePerPage - pageHeaderSize);
             byte[] IndexPageBytes = new byte[spacePerPage];
@@ -65,79 +59,35 @@ namespace RedBlackTreeAlgo.DatabaseManager
 
             int currIndexPage = 0;
             int currDataPage = 1;
-            binaryWriter = new BinaryWriter(File.Open(name, FileMode.Create));
-            binaryWriter.Write(currIndexPage);  //storing current index page number
-            binaryWriter.Write(currDataPage);   //storing current data page number
-            binaryWriter.Write(IndexPageBytes);
-            binaryWriter.Write(DataPageBytes);
-            binaryWriter.Flush();
+            bw = new BinaryWriter(File.Open(name, FileMode.Create));
+            bw.Write(currIndexPage);  //storing current index page number
+            bw.Write(currDataPage);   //storing current data page number
+            bw.Write(IndexPageBytes);
+            bw.Write(DataPageBytes);
+            bw.Close();
             return true;        
         }
-        private byte[] ReadPageWithNumber(int number)
-        {
-            binaryReader.BaseStream.Position = offsetFromStart + spacePerPage*number;
-            return binaryReader.ReadBytes(spacePerPage);
-        }
-        private int calcNumberOfNewPage()
-        {
-            long fileSize = new System.IO.FileInfo(CurrDB).Length;
-            return (int)(fileSize / spacePerPage)+1;
-        }
-        private void WritePage(Page page) { }
-        
         public bool Insert(int key, byte[] data)
         {
-            binaryReader = new BinaryReader(File.Open(currDB, FileMode.Open));            
-            Page currPage = new Page(ReadPageWithNumber(0));
+            Page currPage = buffManager.getPageWithNumber(0);
             Record? y = null;
-            
             Record? x = currPage.getRecord(pageHeaderSize);
-            while(x.Datapage!= 0 && x.DataOffset!= 0 )
+            while(x.Datapage!= 0 && x.DataOffset!= 0 )//while x != null
             {
                 y = x;
                 if (key < x.Key)
-                {
-                    if (x.LeftPage == currPage.Number)
-                        x = currPage.getRecord(x.LeftOffset);
-                    else
-                    {
-                        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    }
-                }
+                    x = buffManager.getRecordFromPage(x.LeftPage, x.LeftOffset);                   
                 else
-                {
-                    if (x.RightPage == currPage.Number)
-                        x = currPage.getRecord(x.RightOffset);
-                    else
-                    {
-                        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    }
-                }
+                    x = buffManager.getRecordFromPage(x.RightPage, x.RightOffset);                   
             }
-            Page currDataPage = new Page(ReadPageWithNumber(currDataPageNumb));
+            Page currDataPage = buffManager.getCurrDataPage();
             if(!currDataPage.isEnoughSpace(data.Length))
-            {             
-                int newPageNum = calcNumberOfNewPage();
-                currDataPage = new Page(newPageNum, PageType.data, spacePerPage - Page.pageHeaderSize);
-                currDataPageNumb = newPageNum;//need to be written
-                needToWriteNewCurrPageNum = true;
-            }
-            data.CopyTo(currDataPage.buff, currDataPage.Position);
-            currDataPage.Position += data.Length;   //move pointer to next position
-            currDataPage.FreeSpace -= data.Length;
-            currDataPage.IsDirty = true;
-            Page currIndexPage = currPage;
-            if(currIndexPageNumb != currPage.Number )
-            {
-                currIndexPage = new Page(ReadPageWithNumber(currDataPageNumb));
-                if (!currIndexPage.isEnoughSpace(recordSize))
-                {
-                    int newPageNum = calcNumberOfNewPage();
-                    currIndexPage = new Page(newPageNum, PageType.index, spacePerPage - Page.pageHeaderSize);
-                    currIndexPageNumb = newPageNum;
-                    needToWriteNewCurrPageNum = true;
-                }                    
-            }
+                currDataPage = buffManager.CreateNewPage(PageType.data);
+            currDataPage.AddData(data);
+
+            Page currIndexPage = buffManager.getCurrIndexPage();
+            if (!currIndexPage.isEnoughSpace(recordSize))
+                currIndexPage = buffManager.CreateNewPage(PageType.index);                  
             Record record = new Record(key, currDataPage.Number, currDataPage.Position-data.Length, currIndexPage.Number, currIndexPage.Position);
             if ( y != null )
             {
@@ -180,10 +130,9 @@ namespace RedBlackTreeAlgo.DatabaseManager
              */
             return InsertFixup(record);
         }
-        private Record
         private bool InsertFixup(Record record)
         {
-            while(record.ParentOffset!=0 && record.P)
+           // while(record.ParentOffset!=0 && record.P)
             return true;
             /*
              while (node.P != null && node.P.Color == NodeColor.RED)
