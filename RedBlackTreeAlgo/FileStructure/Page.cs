@@ -55,6 +55,7 @@ namespace RedBlackTreeAlgo.FileStructure
             this._position = pageHeaderSize;
             this._isDirty = false;
             this.buff = new byte[pageSizeTotal];
+            setRecords();
         }
         public Page(byte[] buff)
         {
@@ -84,6 +85,12 @@ namespace RedBlackTreeAlgo.FileStructure
         {
             records[offset] = record;
             _isDirty= true;
+        }
+        public void AddRecord(Record record)
+        {
+            records.Add(record.recordOffset, record);
+            _position += recordSize;
+            _isDirty = true;
         }
         public void AddData(byte[] data)
         {
@@ -120,6 +127,18 @@ namespace RedBlackTreeAlgo.FileStructure
             this._type = (PageType)BitConverter.ToInt32(bytes, pos += sizeof(int));
             this._freeSpace = BitConverter.ToInt32(bytes, pos += sizeof(int));
             this._position = BitConverter.ToInt32(bytes, pos += sizeof(int));
+        }
+        public byte[] getFullPageBytes()
+        {
+            byte[] header = PageSerialization();
+            Array.Copy(header, buff, header.Length);
+            byte[] record;
+            foreach (KeyValuePair<int, Record> r in records)
+            {
+                record = r.Value.RecordSerialization();
+                Array.Copy(record,0, buff, r.Key, recordSize);
+            }
+            return buff;
         }
     }
 }

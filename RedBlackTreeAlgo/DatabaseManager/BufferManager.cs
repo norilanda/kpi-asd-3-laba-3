@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -104,8 +105,32 @@ namespace RedBlackTreeAlgo.DatabaseManager
             StartWrite(FileMode.Append);
             binaryWriter.Write(page.PageSerialization());
         }
-        //public void WritePage(Page page) { }
+        private void WritePage(Page page)
+        {
+            byte[] bytes = page.getFullPageBytes();
+            binaryWriter.BaseStream.Position = offsetFromStart + page.Number * spacePerPage;
+            binaryWriter.Write(bytes);
+        }
+        public void CleanPagesAndWriteRoot() 
+        {
+            StartWrite();
+            foreach (KeyValuePair<int, Page> p in bufferPool)
+            {
+                if (p.Value.IsDirty)
+                {
+                    WritePage(p.Value);
+                    p.Value.IsDirty = false;
+                }
+            }
+            if (needToWriteRoot)//write root
+            {
+                binaryWriter.BaseStream.Position = sizeof(int) * 2;
+                binaryWriter.Write(BitConverter.GetBytes(rootPage));
+                binaryWriter.Write(BitConverter.GetBytes(rootOffset));
+            }
+        }
 
+        //----------------------------------------------------------------------------------
         //records manipulations
         public Record getRoot()
         {

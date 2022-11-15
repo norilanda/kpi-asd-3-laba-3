@@ -90,6 +90,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
             if (!currIndexPage.isEnoughSpace(recordSize))
                 currIndexPage = buffManager.CreateNewPage(PageType.index);                  
             Record record = new Record(key, currDataPage.Number, currDataPage.Position-data.Length, currIndexPage.Number, currIndexPage.Position);  //creating record with reference to written data
+            currIndexPage.AddRecord(record); //adding record to page records
             if ( y != null )
             {
                 buffManager.setParent(record, y);   //set record parent to y
@@ -100,8 +101,10 @@ namespace RedBlackTreeAlgo.DatabaseManager
             }
             else
                 buffManager.setRoot(record);//root = record
-        
-            return InsertFixup(record);
+            
+            bool flag =  InsertFixup(record);
+            buffManager.CleanPagesAndWriteRoot();
+            return flag;
         }
         private bool InsertFixup(Record record)
         {
