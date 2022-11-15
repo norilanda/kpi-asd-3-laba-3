@@ -84,8 +84,8 @@ namespace RedBlackTreeAlgo.FileStructure
         }
         public int ParentOffset
         {
-            get { return _parentPage; }
-            set { _parentPage = value; }
+            get { return _parentOffset; }
+            set { _parentOffset = value; }
         }
 
         public static int RecordSize() { return sizeof(int) * 9; }
@@ -108,6 +108,8 @@ namespace RedBlackTreeAlgo.FileStructure
             RecordDeserialization(bytes); }
         public static bool AreEqual(Record record1, Record record2)
         {
+            if ((record1 != null && record2 ==null) || (record1 == null && record2 != null))
+                return false;
             if (record1.recordPage != record2.recordPage)
                 return false;
             if (record1.recordOffset != record2.recordOffset) 

@@ -61,13 +61,15 @@ namespace RedBlackTreeAlgo.DatabaseManager
         {
             Record? y = null;
             Record? x = buffManager.getRoot();
-            while(!x.isNull())//while x != null
+            while(x!=null && !x.isNull())//while x != null
             {
                 y = x;
                 if (key < x.Key)
-                    x = buffManager.getRecordFromPage(x.LeftPage, x.LeftOffset);                   
+                    x = buffManager.getRecordFromPage(x.LeftPage, x.LeftOffset);
+                else if (key > x.Key)
+                    x = buffManager.getRecordFromPage(x.RightPage, x.RightOffset);
                 else
-                    x = buffManager.getRecordFromPage(x.RightPage, x.RightOffset);                   
+                    return false;
             }
             Page currDataPage = buffManager.getCurrDataPage();
             if(!currDataPage.isEnoughSpace(data.Length))
@@ -101,7 +103,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 if (Record.AreEqual(buffManager.getParent(record), buffManager.getLeft(buffManager.getGrandparent(record)) ))   //if parent is a left child
                 {
                     Record y = buffManager.getRight(buffManager.getGrandparent(record));  //uncle
-                    if (!y.isNull() && y.Color == Color.RED)   //case 1 (uncle is RED). Solution: recolor
+                    if (y != null && !y.isNull() && y.Color == Color.RED)   //case 1 (uncle is RED). Solution: recolor
                     {
                         buffManager.setColor(buffManager.getParent(record), Color.BLACK);   //set parent color to black
                         buffManager.setColor(y, Color.BLACK);   //set uncle color to black
@@ -125,7 +127,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 else //if parent is a right child
                 {
                     Record y = buffManager.getLeft(buffManager.getGrandparent(record));  //uncle
-                    if (!y.isNull() && y.Color == Color.RED)   //case 1 (uncle is RED). Solution: recolor
+                    if (y!=null && !y.isNull() && y.Color == Color.RED)   //case 1 (uncle is RED). Solution: recolor
                     {
                         buffManager.setColor(buffManager.getParent(record), Color.BLACK);   //set parent color to black
                         buffManager.setColor(y, Color.BLACK);   //set uncle color to black
@@ -143,7 +145,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                         //case 3 (uncle is black, line). Solution: recolor and rotate
                         buffManager.setColor(buffManager.getParent(record), Color.BLACK);
                         buffManager.setColor(buffManager.getGrandparent(record), Color.RED);
-                        buffManager.RightRotate(buffManager.getGrandparent(record));//RightRotate(node.G)
+                        buffManager.LeftRotate(buffManager.getGrandparent(record));//RightRotate(node.G)
                     }
                 }
             }

@@ -71,15 +71,26 @@ namespace RedBlackTreeAlgo.FileStructure
             int currPos = pageHeaderSize;
             while (currPos < _position)
             {
-                records.Add(currPos, getRecord(currPos));
+                records.Add(currPos, BackupRecordFromFile(currPos));
                 currPos += Record.RecordSize();
             }
         }
-        public Record getRecord(int offset)
+        public Record BackupRecordFromFile(int offset)
         {
             byte[] record = new byte[recordSize];
             Array.Copy(buff, offset, record, 0, recordSize);
             return new Record(record, _number, offset);
+        }
+        public Record getRecord(int offset)
+        {
+            try
+            {
+                return records[offset];
+            }
+            catch (System.Collections.Generic.KeyNotFoundException e)
+            {
+                return null;
+            }        
         }
         public void setRecord(int offset, Record record)
         {
