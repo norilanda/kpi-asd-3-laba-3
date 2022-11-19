@@ -47,6 +47,20 @@ namespace RedBlackTreeAlgo.DatabaseManager
             bw.Close();
             return true;        
         }
+        public static byte[] ReadMetadata(string metadataFileName)
+        {
+            byte[] md;
+            int fileSize = (int)new System.IO.FileInfo(metadataFileName).Length;
+            using (var stream = File.Open(metadataFileName, FileMode.Open))
+            {
+                using (var binaryReader = new BinaryReader(stream))
+                {
+                    binaryReader.BaseStream.Position = 0;
+                    md = binaryReader.ReadBytes(fileSize);
+                }
+            }
+            return md;
+        }
         public bool Insert(int key, byte[] data)
         {
             Record? y = null;

@@ -12,7 +12,7 @@ namespace RBTreeGui
             
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnInsert_Click(object sender, EventArgs e)
         {
             string DBname = textBoxDBName.Text;
             string input = textBoxInput.Text;
@@ -33,8 +33,7 @@ namespace RBTreeGui
             //dBManager.Insert(5, data);
             //dBManager.Insert(6, data);
             //dBManager.Insert(1, data);
-            //dBManager.Insert(2, data);
-            //dBManager.Insert(43, data);
+
             //for(int i=0;i<10000;i++)
             //{
             //    if (!dBManager.Insert(i, data))
@@ -49,7 +48,36 @@ namespace RBTreeGui
             //{
             //    int e = failer;
             //}
-            byte[] searchingData = dBManager.Search(78);
+            
+        }
+
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            string DBname = textBoxDBName.Text;
+            string input = textBoxInput.Text;
+            int keyToSearch = Convert.ToInt32(input);
+            DBname = "file.txt";
+            DBManager dBManager = new DBManager(DBname);
+            byte[]? searchingData = dBManager.Search(keyToSearch);
+            if(searchingData != null)
+            {
+                textBoxErrors.Text = "Success; 1 row returned";
+            }
+            else
+            {
+                textBoxErrors.Text = "Success; 0 row returned";
+            }
+        }
+
+        private void btnCreate_Click(object sender, EventArgs e)
+        {
+            string DBname = textBoxDBName.Text;
+            string input = textBoxInput.Text;
+
+            DBname = "file.txt";
+            int dataSize;
+            byte[] metadata = Parser.CreateMetadataForDB("id int, lake char(15)", out dataSize);
+            DBManager.CreateDatabase(DBname, metadata, dataSize);
         }
     }
 }
