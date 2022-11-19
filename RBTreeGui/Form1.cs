@@ -10,9 +10,10 @@ namespace RBTreeGui
         {
             InitializeComponent();
             string fileName = "file.txt";
-            byte[] b = Parser.CreateMetadataForDB("id int, lake char(15)");
+            int dataSize;
+            byte[] b = Parser.CreateMetadataForDB("id int, lake char(15)", out dataSize);
             int failer = 0;
-            DBManager.CreateDatabase(fileName, b);
+            DBManager.CreateDatabase(fileName, b, dataSize);
             DBManager dBManager = new DBManager(fileName);
             
             //dBManager.Insert(3, b);
@@ -22,21 +23,21 @@ namespace RBTreeGui
             //dBManager.Insert(1, b);
             //dBManager.Insert(2, b);
             //dBManager.Insert(9, b);
-            for(int i=0;i<10000;i++)
-            {
-                if (!dBManager.Insert(i, b))
-                    failer++;
-            }
+            //for(int i=0;i<10000;i++)
+            //{
+            //    if (!dBManager.Insert(i, b))
+            //        failer++;
+            //}
 
-            if (failer == 0)
-            {
-                int e = 0;
-            }
-            else
-            {
-                int e = failer;
-            }
-            byte[] data = dBManager.Search(1098);
+            //if (failer == 0)
+            //{
+            //    int e = 0;
+            //}
+            //else
+            //{
+            //    int e = failer;
+            //}
+            //byte[] data = dBManager.Search(1098);
 
             /*
             

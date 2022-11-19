@@ -15,13 +15,12 @@ namespace RedBlackTreeAlgo.DatabaseManager
     {
         private Dictionary<int, Page> bufferPool;   //page number, page
         private string currDB;
- 
-        private static int spacePerPage = Page.pageSizeTotal;
-        public static int dataSpace;
-        private static int offsetFromStart = sizeof(int) * 4;
+        
+        private static int offsetFromStart = sizeof(int) * 4;   //indicates the pages start
         private static int pageHeaderSize = Page.pageHeaderSize;
-        private int currIndexPageNumb;
-        private int currDataPageNumb;
+        //
+        private int currPageNumb;
+        public static int dataSpace;//???????
         private int rootPage;
         private int rootOffset;
 
@@ -36,48 +35,44 @@ namespace RedBlackTreeAlgo.DatabaseManager
             {
                 using(var binaryReader = new BinaryReader(stream))
                 {
-                    currIndexPageNumb = binaryReader.ReadInt32();
-                    currDataPageNumb = binaryReader.ReadInt32();
+                    currPageNumb = binaryReader.ReadInt32();//current page
+                    dataSpace = binaryReader.ReadInt32();//space of data in each node
                     rootPage = binaryReader.ReadInt32();
                     rootOffset = binaryReader.ReadInt32();
                 }
             }
-            getDataSpace();
+            //getDataSpace();
             needToWriteRoot = false;
         }
-        private void getDataSpace()
-        {
-            string metadataFileName = currDB + "Meta";
-            using (var stream = File.Open(metadataFileName, FileMode.Open))
-            {
-                using (var binaryReader = new BinaryReader(stream))
-                {
-                    dataSpace = binaryReader.ReadInt32();
-                }
-            }
-        }
-        public byte[] ReadDataFromPage(int pageNumber, int recordOffset, int lenght)
-        {
-            byte[] data = new byte[lenght];
-            Page p = getPageWithNumber(pageNumber);
-            using (var stream = File.Open(currDB, FileMode.Open))
-            {
-                using (var binaryReader = new BinaryReader(stream))
-                {
-                    binaryReader.BaseStream.Position = recordOffset;
-                    data = binaryReader.ReadBytes(lenght);
-                }
-            }
-            return data;
-        }
+        //private void getDataSpace()
+        //{
+        //    string metadataFileName = currDB + "Meta";
+        //    using (var stream = File.Open(metadataFileName, FileMode.Open))
+        //    {
+        //        using (var binaryReader = new BinaryReader(stream))
+        //        {
+        //            dataSpace = binaryReader.ReadInt32();
+        //        }
+        //    }
+        //}
 
-        public Page getCurrDataPage()
+        //public byte[] ReadDataFromPage(int pageNumber, int recordOffset, int lenght)//????????????????????
+        //{
+        //    byte[] data = new byte[lenght];
+        //    Page p = getPageWithNumber(pageNumber);
+        //    using (var stream = File.Open(currDB, FileMode.Open))
+        //    {
+        //        using (var binaryReader = new BinaryReader(stream))
+        //        {
+        //            binaryReader.BaseStream.Position = recordOffset;
+        //            data = binaryReader.ReadBytes(lenght);
+        //        }
+        //    }
+        //    return data;
+        //}
+        public Page getCurrPage()
         {
-            return getPageWithNumber(currDataPageNumb);
-        }
-        public Page getCurrIndexPage()
-        {
-            return getPageWithNumber(currIndexPageNumb);
+            return getPageWithNumber(currPageNumb);
         }
         public Page getPageWithNumber(int pageNumber)
         {
@@ -97,30 +92,27 @@ namespace RedBlackTreeAlgo.DatabaseManager
             {
                 using (var binaryReader = new BinaryReader(stream))
                 {
-                    binaryReader.BaseStream.Position = offsetFromStart + spacePerPage * number;
-                    bytes = binaryReader.ReadBytes(spacePerPage);
+                    binaryReader.BaseStream.Position = offsetFromStart + Page.spacePerPage * number;
+                    bytes = binaryReader.ReadBytes(Page.spacePerPage);
                 }
             }
             return bytes;
         }
-        public Page CreateNewPage(PageType type)
+        public Page CreateNewPage()
         {
             int newPageNum = calcNumberOfNewPage();
-            Page currPage = new Page(newPageNum, type, spacePerPage - Page.pageHeaderSize);
+            Page currPage = new Page(newPageNum, Page.spacePerPage - Page.pageHeaderSize);
             WriteNewPage(currPage); //write it to file
             bufferPool.Add(currPage.Number, currPage); //add to dictionary
-            if (type == PageType.index)
-                currIndexPageNumb = newPageNum;
-            else
-                currDataPageNumb = newPageNum;
+            currPageNumb = newPageNum;
             needToWriteCurrPage = true;
             
             return currPage;
         }
         public int calcNumberOfNewPage()
         {
-            long fileSize = new System.IO.FileInfo(currDB).Length;
-            return (int)(fileSize / spacePerPage) + 1;
+            long fileSize = new System.IO.FileInfo(currDB).Length - offsetFromStart;
+            return (int)(fileSize / Page.spacePerPage) + 1;
         }
         public void WriteNewPage(Page page)
         {
@@ -135,7 +127,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
         private void WritePage(BinaryWriter bw, Page page)
         {
             byte[] bytes = page.getFullPageBytes();
-            bw.BaseStream.Position = offsetFromStart + page.Number * spacePerPage;
+            bw.BaseStream.Position = offsetFromStart + page.Number * Page.spacePerPage;
             bw.Write(bytes);
         }
         public void CleanPagesAndWriteRoot() 
@@ -162,9 +154,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                     if (needToWriteCurrPage)
                     {
                         binaryWriter.BaseStream.Position = 0;//set position to the start (index page number)
-                        binaryWriter.Write(BitConverter.GetBytes(currIndexPageNumb));
-                        binaryWriter.BaseStream.Position = 4;//set position to the 2-nd int (data page number)
-                        binaryWriter.Write(BitConverter.GetBytes(currDataPageNumb));
+                        binaryWriter.Write(BitConverter.GetBytes(currPageNumb));                        
                         needToWriteCurrPage = false;
                     }
                 }
@@ -258,14 +248,17 @@ namespace RedBlackTreeAlgo.DatabaseManager
         }
         public void setColor(Record record, Color color)
         {
-            record.Color = color;
-            bufferPool[record.recordPage].IsDirty = true;
+            if (record.Color != color)
+            {
+                record.Color = color;
+                bufferPool[record.recordPage].IsDirty = true;
+            }
         }
         public void LeftRotate(Record x)
         {
             Record y = getRight(x);
             setRight(x, getLeft(y)); // x.Right = y.Left
-            if (getLeft(y)!=null && !getLeft(y).isNull())                
+            if (getLeft(y)!=null) //???????????????????????????///&& !getLeft(y).isNull()               
                 setParent(getLeft(y), x);   //y.Left.P = x
             setParent(y, getParent(x)); //y.P = x.P
                                         //
@@ -282,7 +275,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
         {
             Record y = getLeft(x);
             setLeft(x, getRight(y)); // x.Left = y.Right
-            if (getRight(y)!=null && !getRight(y).isNull())
+            if (getRight(y)!=null)//???????????????????????????????&& !getRight(y).isNull()
                 setParent(getRight(y), x);   //y.Right.P = x
             setParent(y, getParent(x)); //y.P = x.P
                                         //

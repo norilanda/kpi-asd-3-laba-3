@@ -8,16 +8,12 @@ using RedBlackTreeAlgo.FileStructure;
 using System.Reflection;
 using System.IO;
 using System.Xml.Linq;
+using System.Text.RegularExpressions;
 
 namespace RedBlackTreeAlgo.DatabaseManager
 {
     public class DBManager
     {
-        private static int spacePerPage = Page.pageSizeTotal;    //space for each page in bytes
-        private static int offsetFromStart = sizeof(int) * 4;   //indicates the pages start
-        private static int pageHeaderSize = Page.pageHeaderSize;
-        private static int recordSize = Record.RecordSize();
-
         private string? currDB;       
         
         private BufferManager buffManager;
@@ -27,7 +23,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
             buffManager = new BufferManager(name);
         }
        
-        public static bool CreateDatabase(string name, byte[] metadata)
+        public static bool CreateDatabase(string name, byte[] metadata, int spaceDataInNodes)
         {
             //check name ? maybe later
             //store metadata in separate file
@@ -35,25 +31,19 @@ namespace RedBlackTreeAlgo.DatabaseManager
             bw.Write(metadata);
             bw.Close();
             //create file to store data
-            Page indexPage = new Page(0, PageType.index, spacePerPage - pageHeaderSize);
-            byte[] IndexPageBytes = new byte[spacePerPage];
-            byte[] IndexPageHeader = indexPage.PageSerialization();
-            IndexPageHeader.CopyTo(IndexPageBytes, 0);
-
-            Page dataPage = new Page(1, PageType.data, spacePerPage - Page.pageHeaderSize);
-            byte[] DataPageBytes = new byte[spacePerPage];
-            byte[] dataPageHeader = dataPage.PageSerialization();
-            dataPageHeader.CopyTo(DataPageBytes, 0);
+            Page firstPage = new Page(0, Page.spacePerPage - Page.pageHeaderSize);
+            byte[] firstPageBytes = new byte[Page.spacePerPage];
+            byte[] firstPageHeader = firstPage.PageSerialization();
+            firstPageHeader.CopyTo(firstPageBytes, 0);          
 
             int currIndexPage = 0;
-            int currDataPage = 1;
+            int dataSpace = spaceDataInNodes;
             bw = new BinaryWriter(File.Open(name, FileMode.Create));
-            bw.Write(currIndexPage);  //storing current index page number
-            bw.Write(currDataPage);   //storing current data page number
-            bw.Write(new byte[sizeof(int)]);  //storing root page 
-            bw.Write(BitConverter.GetBytes(pageHeaderSize)); //storing root offset
-            bw.Write(IndexPageBytes);
-            bw.Write(DataPageBytes);
+            bw.Write(currIndexPage);  //storing current page number
+            bw.Write(spaceDataInNodes);   //storing space for data
+            bw.Write(new byte[sizeof(int)]);  //storing initial root page 
+            bw.Write(BitConverter.GetBytes(Page.pageHeaderSize)); //storing initial root offset
+            bw.Write(firstPageBytes); //write first page to file
             bw.Close();
             return true;        
         }
@@ -61,7 +51,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
         {
             Record? y = null;
             Record? x = buffManager.getRoot();
-            while(x!=null && !x.isNull())//while x != null
+            while(x!=null)//while x != null //&& !x.isNull()
             {
                 y = x;
                 if (key < x.Key)
@@ -71,16 +61,12 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 else
                     return false;
             }
-            Page currDataPage = buffManager.getCurrDataPage();
-            if(!currDataPage.isEnoughSpace(data.Length))
-                currDataPage = buffManager.CreateNewPage(PageType.data);
-            currDataPage.AddData(data);
 
-            Page currIndexPage = buffManager.getCurrIndexPage();
-            if (!currIndexPage.isEnoughSpace(recordSize))
-                currIndexPage = buffManager.CreateNewPage(PageType.index);                  
-            Record record = new Record(key, currDataPage.Number, currDataPage.Position-data.Length, currIndexPage.Number, currIndexPage.Position);  //creating record with reference to written data
-            currIndexPage.AddRecord(record); //adding record to page records
+            Page currPage = buffManager.getCurrPage();
+            if (!currPage.isEnoughSpace())
+                currPage = buffManager.CreateNewPage();                  
+            Record record = new Record(key, data, currPage.Number, currPage.Position);  //creating record with reference to written data
+            currPage.AddRecord(record); //adding record to page records
             if ( y != null )
             {
                 buffManager.setParent(record, y);   //set record parent to y
@@ -103,7 +89,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 if (Record.AreEqual(buffManager.getParent(record), buffManager.getLeft(buffManager.getGrandparent(record)) ))   //if parent is a left child
                 {
                     Record y = buffManager.getRight(buffManager.getGrandparent(record));  //uncle
-                    if (y != null && !y.isNull() && y.Color == Color.RED)   //case 1 (uncle is RED). Solution: recolor
+                    if (y != null && y.Color == Color.RED)   //case 1 (uncle is RED). Solution: recolor //&& !y.isNull() 
                     {
                         buffManager.setColor(buffManager.getParent(record), Color.BLACK);   //set parent color to black
                         buffManager.setColor(y, Color.BLACK);   //set uncle color to black
@@ -127,7 +113,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 else //if parent is a right child
                 {
                     Record y = buffManager.getLeft(buffManager.getGrandparent(record));  //uncle
-                    if (y!=null && !y.isNull() && y.Color == Color.RED)   //case 1 (uncle is RED). Solution: recolor
+                    if (y!=null && y.Color == Color.RED)   //case 1 (uncle is RED). Solution: recolor //&& !y.isNull() 
                     {
                         buffManager.setColor(buffManager.getParent(record), Color.BLACK);   //set parent color to black
                         buffManager.setColor(y, Color.BLACK);   //set uncle color to black
@@ -156,7 +142,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
         {
             byte[] data = new byte[BufferManager.dataSpace];
             Record? x = buffManager.getRoot();
-            while (x != null && !x.isNull() && x.Key != key)
+            while (x != null  && x.Key != key) //&& !x.isNull()
             {
                 if (key < x.Key)
                     x = buffManager.getRecordFromPage(x.LeftPage, x.LeftOffset);
@@ -164,10 +150,8 @@ namespace RedBlackTreeAlgo.DatabaseManager
                     x = buffManager.getRecordFromPage(x.RightPage, x.RightOffset);
             }
             if (x == null)
-                return null;
-            data = buffManager.ReadDataFromPage(x.Datapage, x.DataOffset, data.Length);
-                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            return data;
+                return null;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            return x.Data;
             /*
             Node? x = root;
             while (x != null && x.Key != key)

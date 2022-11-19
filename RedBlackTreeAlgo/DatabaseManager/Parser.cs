@@ -16,7 +16,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
         private static string DoubleS = "double";
         private static string CharS = "char";
 
-        public static byte[] CreateMetadataForDB(string text)
+        public static byte[] CreateMetadataForDB(string text, out int totalSize)
         {
             //size-of-one-record
             // size-letter-strLenght-str
@@ -26,7 +26,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
             List<byte> metadata = new List<byte>();
             byte[] byteArr;
             text = text.ToLower();
-            int totalSize = 0;
+            totalSize = 0;
             string[] lines = text.Split(StatementDelim);    //divide into statements
             for(int i=0; i<lines.Length; i++)
             {
