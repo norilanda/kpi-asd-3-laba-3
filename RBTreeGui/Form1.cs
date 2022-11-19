@@ -9,12 +9,20 @@ namespace RBTreeGui
         public Form1()
         {
             InitializeComponent();
-            string fileName = "file.txt";
+            
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            string DBname = textBoxDBName.Text;
+            string input = textBoxInput.Text;
+
+            DBname = "file.txt";
             int dataSize;
             byte[] metadata = Parser.CreateMetadataForDB("id int, lake char(15)", out dataSize);
             int failer = 0;
             //DBManager.CreateDatabase(fileName, metadata, dataSize);
-            DBManager dBManager = new DBManager(fileName);
+            DBManager dBManager = new DBManager(DBname);
 
             byte[] data = new byte[dataSize];
 
@@ -42,23 +50,6 @@ namespace RBTreeGui
             //    int e = failer;
             //}
             byte[] searchingData = dBManager.Search(78);
-
-            /*
-            
-            RedBlackTree rbt = new RedBlackTree();
-            int[] arr = { 3, 4, 5, 1, 2, 6, 7, 0 }; //, 6, 4, 0
-            for (int i = 0; i < arr.Length; i++)
-            {
-                bool success = rbt.Insert(arr[i], arr[i]);
-                if (!success)
-                    MessageBox.Show("Smth went wrong!", "Error");
-            }
-            rbt.Delete(6);
-            Node? n = rbt.Search(4);
-            if (n != null)
-                MessageBox.Show("Node is found", "Node searching");
-            else
-                MessageBox.Show("Node is NOT found :( ", "Node searching"); */
         }
     }
 }
