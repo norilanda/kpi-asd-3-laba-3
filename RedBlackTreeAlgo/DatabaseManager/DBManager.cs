@@ -140,7 +140,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
         }
         public byte[]? Search(int key)
         {
-            byte[] data = new byte[BufferManager.dataSpace];
+            byte[] data = new byte[Record.dataSpace];
             Record? x = buffManager.getRoot();
             while (x != null  && x.Key != key) //&& !x.isNull()
             {

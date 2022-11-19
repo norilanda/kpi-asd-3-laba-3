@@ -16,7 +16,7 @@ namespace RedBlackTreeAlgo.FileStructure
         /*Represents the record in the page. For index type page contains key, index for data of the key (page-row), index for a left successor (page-row) and index for a right successor (page-row)
          */
         /*offset - number of bytes from the page start*/
-        public static int dataSize;
+        public static int dataSpace;
 
         private int _key;
         //data
@@ -90,11 +90,11 @@ namespace RedBlackTreeAlgo.FileStructure
             set { _parentOffset = value; }
         }
 
-        public static int RecordSize = sizeof(int) * 9 + dataSize;
+        public static int RecordSize;
         public Record(int key, byte[] data, int recordPage, int recordOffset) //createing a new record
         {
             _key = key;
-            this._data = new byte[dataSize];
+            this._data = new byte[dataSpace];
             this._data= data;
             _color = Color.RED;
             _leftPage = _leftOffset = 0;
@@ -105,7 +105,7 @@ namespace RedBlackTreeAlgo.FileStructure
         }
         public Record(byte[] pageInBytes, int recordPage, int recordOffset) //reding record by deserialization
         {
-            this._data = new byte[dataSize];
+            this._data = new byte[dataSpace];
             this.recordPage = recordPage;
             this.recordOffset = recordOffset;
             RecordDeserialization(pageInBytes); }
@@ -176,8 +176,8 @@ namespace RedBlackTreeAlgo.FileStructure
             const int LAST_BIT_POSITION = 7;
             int pos = 0;
             this._key = BitConverter.ToInt32(bytes, pos); pos += sizeof(int);
-            Array.Copy(bytes, pos, this._data, 0, dataSize);
-            pos += dataSize;
+            Array.Copy(bytes, pos, this._data, 0, dataSpace);
+            pos += dataSpace;
             
             this._leftPage = BitConverter.ToInt32(bytes, pos);
             this._leftOffset = BitConverter.ToInt32(bytes, pos += sizeof(int));

@@ -20,7 +20,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
         private static int pageHeaderSize = Page.pageHeaderSize;
         //
         private int currPageNumb;
-        public static int dataSpace;//???????
+        // dataSpace;//
         private int rootPage;
         private int rootOffset;
 
@@ -36,40 +36,16 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 using(var binaryReader = new BinaryReader(stream))
                 {
                     currPageNumb = binaryReader.ReadInt32();//current page
-                    dataSpace = binaryReader.ReadInt32();//space of data in each node
+                    Record.dataSpace = binaryReader.ReadInt32();//space of data in each node
+                    Record.RecordSize = sizeof(int) * 9 + Record.dataSpace;
                     rootPage = binaryReader.ReadInt32();
                     rootOffset = binaryReader.ReadInt32();
                 }
             }
-            //getDataSpace();
+            
             needToWriteRoot = false;
         }
-        //private void getDataSpace()
-        //{
-        //    string metadataFileName = currDB + "Meta";
-        //    using (var stream = File.Open(metadataFileName, FileMode.Open))
-        //    {
-        //        using (var binaryReader = new BinaryReader(stream))
-        //        {
-        //            dataSpace = binaryReader.ReadInt32();
-        //        }
-        //    }
-        //}
-
-        //public byte[] ReadDataFromPage(int pageNumber, int recordOffset, int lenght)//????????????????????
-        //{
-        //    byte[] data = new byte[lenght];
-        //    Page p = getPageWithNumber(pageNumber);
-        //    using (var stream = File.Open(currDB, FileMode.Open))
-        //    {
-        //        using (var binaryReader = new BinaryReader(stream))
-        //        {
-        //            binaryReader.BaseStream.Position = recordOffset;
-        //            data = binaryReader.ReadBytes(lenght);
-        //        }
-        //    }
-        //    return data;
-        //}
+   
         public Page getCurrPage()
         {
             return getPageWithNumber(currPageNumb);
