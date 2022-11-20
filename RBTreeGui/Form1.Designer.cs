@@ -44,6 +44,7 @@
             // 
             // textBoxInput
             // 
+            this.textBoxInput.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.textBoxInput.Location = new System.Drawing.Point(103, 92);
             this.textBoxInput.Multiline = true;
             this.textBoxInput.Name = "textBoxInput";
@@ -52,6 +53,7 @@
             // 
             // textBoxResults
             // 
+            this.textBoxResults.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.textBoxResults.Location = new System.Drawing.Point(493, 205);
             this.textBoxResults.Multiline = true;
             this.textBoxResults.Name = "textBoxResults";
@@ -60,6 +62,7 @@
             // 
             // textBoxErrors
             // 
+            this.textBoxErrors.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.textBoxErrors.Location = new System.Drawing.Point(103, 540);
             this.textBoxErrors.Multiline = true;
             this.textBoxErrors.Name = "textBoxErrors";
@@ -88,9 +91,10 @@
             // 
             // textBoxDBName
             // 
+            this.textBoxDBName.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.textBoxDBName.Location = new System.Drawing.Point(493, 92);
             this.textBoxDBName.Name = "textBoxDBName";
-            this.textBoxDBName.Size = new System.Drawing.Size(320, 27);
+            this.textBoxDBName.Size = new System.Drawing.Size(320, 38);
             this.textBoxDBName.TabIndex = 6;
             // 
             // label3
