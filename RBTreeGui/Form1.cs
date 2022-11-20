@@ -9,7 +9,10 @@ namespace RBTreeGui
         public Form1()
         {
             InitializeComponent();
-            
+            int temp;
+            byte[] md = Parser.CreateMetadataForDB("user_id int,name char(10),income double", out temp); //should write without space
+            byte[] d = Parser.DataToByte(md, "5,AnnMarrie,400.25");
+            string dat = Parser.BytesToData(md, d);            
         }
 
         private void btnInsert_Click(object sender, EventArgs e)
@@ -76,7 +79,7 @@ namespace RBTreeGui
 
             DBname = "file.txt";
             int dataSize;
-            byte[] metadata = Parser.CreateMetadataForDB("id int, lake char(15)", out dataSize);
+            byte[] metadata = Parser.CreateMetadataForDB("id int,lake char(15)", out dataSize);//should write without space
             DBManager.CreateDatabase(DBname, metadata, dataSize);
         }
     }

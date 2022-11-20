@@ -86,10 +86,10 @@ namespace RedBlackTreeAlgo.DatabaseManager
             metadata.ToArray().CopyTo(finalMetadata, byteTotalSize.Length);
             return finalMetadata;
         }
-        public static byte[] dataToByte(byte[] metadata, string data)
+        public static byte[] DataToByte(byte[] metadata, string data)
         {
             int recordSize;
-            List<(int typeSize, char t, string cName)> colmns = metadataToData(metadata, out recordSize);
+            List<(int typeSize, char t, string cName)> colmns = MetadataToData(metadata, out recordSize);
             byte[] dataBytes = new byte[recordSize];
             int pos = 0;
             int i = 0;
@@ -106,6 +106,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 }
                 else if (colmns[i].t == DoubleCh)
                 {
+                    strings[i] = strings[i].Replace(".", ",");
                     double dt = Convert.ToDouble(strings[i]);
                     Array.Copy(BitConverter.GetBytes(dt), 0, dataBytes, pos, sizeof(double));
                     pos += sizeof(double);
@@ -113,23 +114,23 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 else
                 {
                     Array.Copy(Encoding.ASCII.GetBytes(strings[i]), 0, dataBytes, pos, strings[i].Length);
-                    pos += strings[i].Length;               
+                    pos += colmns[i].typeSize;               
                 }
                 i++;
             }
             return dataBytes;
         }
 
-        public static List<(int typeSize, char t, string cName) > metadataToData(byte[] metadata, out int recordSize)
+        public static List<(int typeSize, char t, string cName)> MetadataToData(byte[] metadata, out int recordSize)
         {
             (int typeSize, char type, string cName) colmn;
             List<(int typeSize, char t, string cName)> colmns = new List<(int typeSize, char t, string cName)>();
             int pos = 0;
             recordSize = BitConverter.ToInt32(metadata, pos);
-     
+            pos += sizeof(int);
             while (pos < metadata.Length)
             {
-                colmn.typeSize = BitConverter.ToInt32(metadata, pos += sizeof(int));
+                colmn.typeSize = BitConverter.ToInt32(metadata, pos);
                 colmn.type = BitConverter.ToChar(metadata, pos+=sizeof(int));
                 int nameLengthBytes = BitConverter.ToInt32(metadata, pos += sizeof(char));
                 byte[] arr = new byte[nameLengthBytes];
@@ -140,11 +141,11 @@ namespace RedBlackTreeAlgo.DatabaseManager
             }
             return colmns;
         }
-        public static string bytesToData(byte[] metadata, byte[] data)
+        public static string BytesToData(byte[] metadata, byte[] data)
         {
             int temp;
             string dataString = "";
-            List<(int typeSize, char t, string cName)> colmns = metadataToData(metadata, out temp);
+            List<(int typeSize, char t, string cName)> colmns = MetadataToData(metadata, out temp);
             int i = 0;
             int pos = 0;
             while (i < colmns.Count)
@@ -164,10 +165,12 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 }
                 else
                 {
-                    string dt = BitConverter.ToString(data, pos, colmns[i].typeSize);
+                    string dt = Encoding.ASCII.GetString(data, pos, colmns[i].typeSize);
+                    dt = dt.Replace("\0", "");
                     pos += colmns[i].typeSize;
                     dataString += dt;
                 }
+                dataString += "\n";
                 i++;
             }
 
