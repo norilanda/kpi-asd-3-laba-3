@@ -202,7 +202,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
         {
             return getRecordFromPage(record.LeftPage, record.LeftOffset);
         }
-        public void setLeft(Record record, Record successor)
+        public void setLeft(Record record, Record? successor)
         {
             if (successor!= null)
             {
@@ -221,7 +221,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
         {
             return getRecordFromPage(record.RightPage, record.RightOffset);
         }
-        public void setRight(Record record, Record successor)
+        public void setRight(Record record, Record? successor)
         {
 
             if (successor != null)
@@ -248,7 +248,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
         {
             Record y = getRight(x);
             setRight(x, getLeft(y)); // x.Right = y.Left
-            if (getLeft(y)!=null) //???????????????????????????///&& !getLeft(y).isNull()               
+            if (getLeft(y)!=null)              
                 setParent(getLeft(y), x);   //y.Left.P = x
             setParent(y, getParent(x)); //y.P = x.P
                                         //
@@ -265,7 +265,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
         {
             Record y = getLeft(x);
             setLeft(x, getRight(y)); // x.Left = y.Right
-            if (getRight(y)!=null)//???????????????????????????????&& !getRight(y).isNull()
+            if (getRight(y)!=null)
                 setParent(getRight(y), x);   //y.Right.P = x
             setParent(y, getParent(x)); //y.P = x.P
                                         //
@@ -278,6 +278,48 @@ namespace RedBlackTreeAlgo.DatabaseManager
             setRight(y, x);//y.Right = x
             setParent(x, y);
         }
-        
+        public void Transplant(Record? u, Record? v)
+        {
+            if (getParent(u) == null)
+                setRoot(v);//root = v;
+            else if(Record.AreEqual(u, getLeft(getParent(u)) ))
+                setLeft(getParent(u), v);//u.P.Left = v;
+            else
+                setRight(getParent(u), v);//u.P.Right = v;
+
+            if (v != null)
+                setParent(v, getParent(v));//v.P = u.P;
+            /*
+             private void Transplant(Node? u, Node? v)
+        {
+            if (u.P == null)
+                root = v;
+            else if (u == u.P.Left)
+                u.P.Left = v;
+            else
+                u.P.Right = v;
+            if (v != null)
+                v.P = u.P;
+        }
+             */
+        }
+        public Record Minimum(Record record)
+        {
+            while (getLeft(record) != null) 
+            { 
+                record = getLeft(record);
+            }
+            return record;
+
+            /*private Node Minimum(Node node)
+            {
+                while (node.Left != null)
+                {
+                    node = node.Left;
+                }
+                return node;
+            }*/
+        }
+
     }
 }

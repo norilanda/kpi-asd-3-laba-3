@@ -82,7 +82,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
         {
             Record? y = null;
             Record? x = buffManager.getRoot();
-            while(x!=null)//while x != null //&& !x.isNull()
+            while(x!=null)//while x != null
             {
                 y = x;
                 if (key < x.Key)
@@ -120,7 +120,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 if (Record.AreEqual(buffManager.getParent(record), buffManager.getLeft(buffManager.getGrandparent(record)) ))   //if parent is a left child
                 {
                     Record y = buffManager.getRight(buffManager.getGrandparent(record));  //uncle
-                    if (y != null && y.Color == Color.RED)   //case 1 (uncle is RED). Solution: recolor //&& !y.isNull() 
+                    if (y != null && y.Color == Color.RED)   //case 1 (uncle is RED). Solution: recolor 
                     {
                         buffManager.setColor(buffManager.getParent(record), Color.BLACK);   //set parent color to black
                         buffManager.setColor(y, Color.BLACK);   //set uncle color to black
@@ -144,7 +144,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 else //if parent is a right child
                 {
                     Record y = buffManager.getLeft(buffManager.getGrandparent(record));  //uncle
-                    if (y!=null && y.Color == Color.RED)   //case 1 (uncle is RED). Solution: recolor //&& !y.isNull() 
+                    if (y!=null && y.Color == Color.RED)   //case 1 (uncle is RED). Solution: recolor 
                     {
                         buffManager.setColor(buffManager.getParent(record), Color.BLACK);   //set parent color to black
                         buffManager.setColor(y, Color.BLACK);   //set uncle color to black
@@ -172,27 +172,27 @@ namespace RedBlackTreeAlgo.DatabaseManager
         public string? SearchData(int key)
         {
             string? result = null;
-            byte[]? dataBytes = Search(key);
+            byte[]? dataBytes = null;
+            Record? record = Search(key);
+            if (record != null)
+                dataBytes = record.Data;
             if (dataBytes != null)
             {
                 result = buffManager.GetDataStringFromBytes(dataBytes);
             }
             return result;
         }
-        private byte[]? Search(int key)
+        private Record? Search(int key)
         {
-            byte[] data = new byte[Record.dataSpace];
             Record? x = buffManager.getRoot();
-            while (x != null  && x.Key != key) //&& !x.isNull()
+            while (x != null  && x.Key != key)
             {
                 if (key < x.Key)
                     x = buffManager.getRecordFromPage(x.LeftPage, x.LeftOffset);
                 else
                     x = buffManager.getRecordFromPage(x.RightPage, x.RightOffset);
             }
-            if (x == null)
-                return null;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            return x.Data;
+            return x;
             /*
             Node? x = root;
             while (x != null && x.Key != key)
@@ -204,6 +204,197 @@ namespace RedBlackTreeAlgo.DatabaseManager
             }
             return x;
             */
+        }
+        public bool Delete(int key)
+        {
+            Record? record = Search(key);
+            if (record == null) return false; //if there is no such an element
+            Record? x, y = record;
+            Color yOriginalColor = y.Color;
+            if (buffManager.getLeft(record) == null)
+            {
+                x = buffManager.getRight(record);
+                buffManager.Transplant(record, buffManager.getRight(record));
+            }
+            else if (buffManager.getRight(record) == null)
+            {
+                x = buffManager.getLeft(record);
+                buffManager.Transplant(record, buffManager.getLeft(record));
+            }
+            else
+            {
+                y = buffManager.Minimum(buffManager.getRight(record));
+                yOriginalColor = y.Color;
+                x = buffManager.getRight(y);
+                if (x != null && buffManager.getParent(y) == record)
+                    buffManager.setParent(x, y);
+                else
+                {
+                    buffManager.Transplant(y, buffManager.getRight(y));
+                    buffManager.setRight(y, buffManager.getRight(record)); //insert successor instead of node
+                    if (buffManager.getRight(y) != null)
+                        buffManager.setParent(buffManager.getRight(y), y);
+                }
+                buffManager.Transplant(record, y);
+                buffManager.setLeft(y, buffManager.getLeft(record));
+                buffManager.setParent(buffManager.getLeft(y), y);
+                buffManager.setColor(y, record.Color);
+                if (yOriginalColor == Color.BLACK)
+                    return Delete_Fixup(x);
+            }
+            return true;
+            /*
+            Node? node = Search(key);
+            if (node == null) return;
+            Node? x, y = node;
+            NodeColor yOriginalColor = y.Color;
+            if (node.Left == null)
+            {
+                x = node.Right;
+                Transplant(node, node.Right);
+            }
+            else if (node.Right == null)
+            {
+                x = node.Left;
+                Transplant(node, node.Left);
+            }*/
+            /*
+            else
+            {
+                y = Minimum(node.Right);
+                yOriginalColor = y.Color;
+                x = y.Right;
+                if (x != null && y.P == node)
+                    x.P = y;
+                else
+                {
+                    Transplant(y, y.Right);
+                    y.Right = node.Right;   //insert successor instead of node
+                    if (y.Right!= null)
+                        y.Right.P = y;//null
+                }
+                Transplant(node, y);
+                y.Left = node.Left;
+                y.Left.P = y;
+                y.Color = node.Color;
+            }
+            if (yOriginalColor == NodeColor.BLACK)
+                Delete_Fixup(x);
+             */
+
+        }
+        private bool Delete_Fixup(Record x)
+        {
+            Record w; //sibling
+            while(x != null && !Record.AreEqual(x, buffManager.getRoot()) && x.Color == Color.BLACK)
+            {
+                if (Record.AreEqual(x, buffManager.getLeft(buffManager.getParent(x))))//if left child
+                {
+                    w = buffManager.getRight(buffManager.getParent(x));
+                    if (w.Color == Color.RED)
+                    {
+                        buffManager.setColor(w, Color.BLACK);
+                        buffManager.setColor(buffManager.getParent(x), Color.RED);
+                        buffManager.LeftRotate(buffManager.getParent(x));
+                        w = buffManager.getRight(buffManager.getParent(x));
+                    }
+                    if (buffManager.getLeft(w).Color == Color.BLACK && buffManager.getRight(w).Color == Color.BLACK)
+                    {
+                        buffManager.setColor(w, Color.RED);
+                        x = buffManager.getParent(x);
+                    }
+                    else
+                    {
+                        if (buffManager.getRight(w).Color == Color.BLACK)
+                        {
+                            buffManager.setColor(buffManager.getLeft(w), Color.BLACK);
+                            buffManager.setColor(w, Color.RED);
+                            buffManager.RightRotate(w);
+                            w = buffManager.getRight(buffManager.getParent(w));
+                        }
+                        buffManager.setColor(w, buffManager.getParent(x).Color);
+                        buffManager.setColor(buffManager.getParent(x), Color.BLACK);
+                        buffManager.setColor(buffManager.getRight(w), Color.BLACK);
+                        buffManager.LeftRotate(buffManager.getParent(x));
+                        x = buffManager.getRoot();
+                    }
+                }
+                else //if right child
+                {
+
+                }
+            }
+            return true;
+            /*
+             Node w; //sibling
+            while (x!=null && x != root && x.Color == NodeColor.BLACK)//
+            {
+                if (x == x.P.Left)  //if left child
+                {
+                    w = x.P.Right;
+                    if (w.Color == NodeColor.RED)
+                    {
+                        w.Color = NodeColor.BLACK;
+                        x.P.Color = NodeColor.RED;
+                        LeftRotate(x.P);
+                        w = x.P.Right;
+                    }
+                    if (w.Left.Color == NodeColor.BLACK && w.Right.Color == NodeColor.BLACK)
+                    {
+                        w.Color = NodeColor.RED;
+                        x = x.P;
+                    } */
+            /*
+                    else
+                    {
+                        if (w.Right.Color == NodeColor.BLACK)
+                        {
+                            w.Left.Color = NodeColor.BLACK;
+                            w.Color = NodeColor.RED;
+                            RightRotate(w);
+                            w = x.P.Right;
+                        }
+                        w.Color = x.P.Color;
+                        x.P.Color = NodeColor.BLACK;
+                        w.Right.Color = NodeColor.BLACK;
+                        LeftRotate(x.P);
+                        x = root;
+                    }
+                } */ 
+            /*
+                else //if right child
+                {
+                    w = x.P.Left;
+                    if (w.Color == NodeColor.RED)
+                    {
+                        w.Color = NodeColor.BLACK;
+                        x.P.Color = NodeColor.RED;
+                        RightRotate(x.P);
+                        w = x.P.Left;
+                    }
+                    if (w.Right.Color == NodeColor.BLACK && w.Left.Color == NodeColor.BLACK)
+                    {
+                        w.Color = NodeColor.RED;
+                        x = x.P;
+                    }
+                    else
+                    {
+                        if (w.Left.Color == NodeColor.BLACK)
+                        {
+                            w.Right.Color = NodeColor.BLACK;
+                            w.Color = NodeColor.RED;
+                            LeftRotate(w);
+                            w = x.P.Left;
+                        }
+                        w.Color = x.P.Color;
+                        x.P.Color = NodeColor.BLACK;
+                        w.Left.Color = NodeColor.BLACK;
+                        RightRotate(x.P);
+                        x = root;
+                    }
+                }
+            }
+             */
         }
     }
 }
