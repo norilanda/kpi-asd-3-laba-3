@@ -86,11 +86,11 @@ namespace RedBlackTreeAlgo.DatabaseManager
             metadata.ToArray().CopyTo(finalMetadata, byteTotalSize.Length);
             return finalMetadata;
         }
-        public static byte[] DataToByte(byte[] metadata, string data)
+        public static byte[] DataToByte(List<(int typeSize, char t, string cName)> colmns, string data, int recordDataSize)
         {
-            int recordSize;
-            List<(int typeSize, char t, string cName)> colmns = MetadataToData(metadata, out recordSize);
-            byte[] dataBytes = new byte[recordSize];
+            //int recordDataSize;
+            //List<(int typeSize, char t, string cName)> colmns = MetadataToData(metadata, out recordDataSize);
+            byte[] dataBytes = new byte[recordDataSize];
             int pos = 0;
             int i = 0;
             string[] strings = data.Split(',');
@@ -121,12 +121,12 @@ namespace RedBlackTreeAlgo.DatabaseManager
             return dataBytes;
         }
 
-        public static List<(int typeSize, char t, string cName)> MetadataToData(byte[] metadata, out int recordSize)
+        public static List<(int typeSize, char t, string cName)> MetadataToData(byte[] metadata)
         {
             (int typeSize, char type, string cName) colmn;
             List<(int typeSize, char t, string cName)> colmns = new List<(int typeSize, char t, string cName)>();
             int pos = 0;
-            recordSize = BitConverter.ToInt32(metadata, pos);
+            int recordDataSize = BitConverter.ToInt32(metadata, pos);
             pos += sizeof(int);
             while (pos < metadata.Length)
             {
@@ -141,11 +141,11 @@ namespace RedBlackTreeAlgo.DatabaseManager
             }
             return colmns;
         }
-        public static string BytesToData(byte[] metadata, byte[] data)
+        public static string BytesToData(List<(int typeSize, char t, string cName)> colmns, byte[] data)
         {
-            int temp;
+            //int temp;
             string dataString = "";
-            List<(int typeSize, char t, string cName)> colmns = MetadataToData(metadata, out temp);
+            //List<(int typeSize, char t, string cName)> colmns = MetadataToData(metadata, out temp);
             int i = 0;
             int pos = 0;
             while (i < colmns.Count)
@@ -170,7 +170,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                     pos += colmns[i].typeSize;
                     dataString += dt;
                 }
-                dataString += "\n";
+                dataString += "; \n";
                 i++;
             }
 

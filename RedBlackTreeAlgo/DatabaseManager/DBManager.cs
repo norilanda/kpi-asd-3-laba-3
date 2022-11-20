@@ -20,10 +20,17 @@ namespace RedBlackTreeAlgo.DatabaseManager
         public DBManager(string name)
         {     
             currDB = name;
-            buffManager = new BufferManager(name);
+            byte[] md = ReadMetadata(name + "Meta");
+            buffManager = new BufferManager(name, md);
         }
        
-        public static bool CreateDatabase(string name, byte[] metadata, int spaceDataInNodes)
+        public static bool CreateDatabase(string name, string description)
+        {
+            int dataSize;
+            byte[] metadata = Parser.CreateMetadataForDB(description, out dataSize);//should write without space
+            return CreateDatabase(name, metadata, dataSize);
+        }
+        private static bool CreateDatabase(string name, byte[] metadata, int spaceDataInNodes)
         {
             //check name ? maybe later
             //store metadata in separate file
@@ -61,7 +68,17 @@ namespace RedBlackTreeAlgo.DatabaseManager
             }
             return md;
         }
-        public bool Insert(int key, byte[] data)
+        public bool InsertData(string data)
+        {
+            int key = Convert.ToInt32(data.Split(',')[0]);
+            byte[] dataBytes = buffManager.GetDataBytesFromString(data);
+            if (dataBytes.Length == Record.dataSpace)
+            {
+                return Insert(key, dataBytes);
+            }
+            return false;
+        }
+        private bool Insert(int key, byte[] data)
         {
             Record? y = null;
             Record? x = buffManager.getRoot();
@@ -152,7 +169,17 @@ namespace RedBlackTreeAlgo.DatabaseManager
             buffManager.setColor(buffManager.getRoot(), Color.BLACK);   //case 0 (node is root)
             return true;            
         }
-        public byte[]? Search(int key)
+        public string? SearchData(int key)
+        {
+            string? result = null;
+            byte[]? dataBytes = Search(key);
+            if (dataBytes != null)
+            {
+                result = buffManager.GetDataStringFromBytes(dataBytes);
+            }
+            return result;
+        }
+        private byte[]? Search(int key)
         {
             byte[] data = new byte[Record.dataSpace];
             Record? x = buffManager.getRoot();

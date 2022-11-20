@@ -15,7 +15,9 @@ namespace RedBlackTreeAlgo.DatabaseManager
     {
         private Dictionary<int, Page> bufferPool;   //page number, page
         private string currDB;
-        
+        private List<(int typeSize, char t, string cName)> colmns;
+
+
         private static int offsetFromStart = sizeof(int) * 4;   //indicates the pages start
         private static int pageHeaderSize = Page.pageHeaderSize;
         //
@@ -27,9 +29,10 @@ namespace RedBlackTreeAlgo.DatabaseManager
         private bool needToWriteCurrPage; //start of file
         private bool needToWriteRoot;
 
-        public BufferManager(string dbName)
+        public BufferManager(string dbName, byte[] metadata)
         {
-            currDB = dbName;
+            currDB = dbName;            
+
             bufferPool = new Dictionary<int, Page>();
             using (var stream = File.Open(currDB, FileMode.Open))
             {
@@ -42,10 +45,21 @@ namespace RedBlackTreeAlgo.DatabaseManager
                     rootOffset = binaryReader.ReadInt32();
                 }
             }
-            
+            colmns = Parser.MetadataToData(metadata);//get columns sizes, types and names
             needToWriteRoot = false;
         }
+        //data
+        public byte[] GetDataBytesFromString(string dataString)// returns data, converted from string to bytes
+        {
+            return Parser.DataToByte(colmns, dataString, Record.dataSpace);
+        }
+        public string GetDataStringFromBytes(byte[] bytes)// returns data, converted from bytes to string
+        {
+            return Parser.BytesToData(colmns, bytes);
+        }
    
+        // pages
+        //------------------------------------------------------------------------------
         public Page getCurrPage()
         {
             return getPageWithNumber(currPageNumb);
