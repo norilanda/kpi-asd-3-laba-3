@@ -233,6 +233,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                     flag = Delete_Fixup(x);
             }
             record.DeleteRecordData();
+            buffManager.getPageWithNumber(record.recordPage).IsDirty = true;
             buffManager.CleanPagesAndWriteRoot();
             return flag;
             /*
@@ -414,6 +415,25 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 }
             }
              */
+        }
+        public bool UpdateData(string data)
+        {
+            int key = Convert.ToInt32(data.Split(',')[0]);
+            byte[] dataBytes = buffManager.GetDataBytesFromString(data);
+            if (dataBytes.Length == Record.dataSpace)
+            {
+                return Update(key, dataBytes);
+            }
+            return false;
+        }
+        private bool Update(int key, byte[] data)
+        {
+            Record? record = Search(key);
+            if (record == null) return false; //if there is no such an element
+            record.Data = data;
+            buffManager.getPageWithNumber(record.recordPage).IsDirty = true;
+            buffManager.CleanPagesAndWriteRoot();
+            return true;
         }
     }
 }

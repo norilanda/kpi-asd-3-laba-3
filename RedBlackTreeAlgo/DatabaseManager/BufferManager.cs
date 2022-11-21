@@ -157,7 +157,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
         {
             return getRecordFromPage(rootPage, rootOffset);
         }
-        public void setRoot(Record record)
+        public void setRoot(Record? record)
         {
             if(record != null)
             {

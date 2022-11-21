@@ -19,12 +19,12 @@ namespace RBTreeGui
         {
             string DBname = textBoxDBName.Text;
             string input = textBoxInput.Text;
+            DBname = "file.txt";
 
             if (input.Length == 0 )
                 textBoxErrors.Text = "You haven't entered the data!";
             else
-            {
-                DBname = "file.txt";
+            {                
                 DBManager dBManager = new DBManager(DBname);
                 bool flag = dBManager.InsertData(input);
 
@@ -93,6 +93,25 @@ namespace RBTreeGui
                 bool flag = dBManager.Delete(keyToDelete);
                 if (flag)
                     textBoxErrors.Text = "Success; 1 row deleted";
+                else
+                    textBoxErrors.Text = "Failed";
+            }
+        }
+
+        private void btnUpdate_Click(object sender, EventArgs e)
+        {
+            string DBname = textBoxDBName.Text;
+            string input = textBoxInput.Text;
+
+            DBname = "file.txt";
+            if (input.Length == 0)
+                textBoxErrors.Text = "You haven't entered the data!";
+            else
+            {
+                DBManager dBManager = new DBManager(DBname);
+                bool flag = dBManager.UpdateData(input);
+                if (flag)
+                    textBoxErrors.Text = "Success; 1 row updated";
                 else
                     textBoxErrors.Text = "Failed";
             }

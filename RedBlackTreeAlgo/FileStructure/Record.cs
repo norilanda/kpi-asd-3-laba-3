@@ -43,7 +43,10 @@ namespace RedBlackTreeAlgo.FileStructure
             get { return _key; }
         }
         public byte[] Data
-        { get { return _data; } }
+        { 
+            get { return _data; }
+            set { _data = value; }
+        }
         //public int Datapage
         //{
         //    get { return _dataPage; }
