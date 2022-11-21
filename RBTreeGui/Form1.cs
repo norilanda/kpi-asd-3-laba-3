@@ -63,11 +63,13 @@ namespace RBTreeGui
                     {
                         int keyToSearch = Convert.ToInt32(input);                                       
                         DBManager dBManager = new DBManager(DBname);
-                        string? searchingData = dBManager.SearchData(keyToSearch);
+                        int comparisonNumber;
+                        string? searchingData = dBManager.SearchData(keyToSearch, out comparisonNumber);
                         if (searchingData != null)
                         {
                             textBoxErrors.Text = "Success; 1 row returned";
                             textBoxResults.Text = searchingData;
+                            textBoxStatistic.Text = Convert.ToString(comparisonNumber);
                         }
                         else
                         {

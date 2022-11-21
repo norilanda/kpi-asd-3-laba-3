@@ -40,15 +40,17 @@
             this.btnDelete = new System.Windows.Forms.Button();
             this.btnUpdate = new System.Windows.Forms.Button();
             this.btnCreate = new System.Windows.Forms.Button();
+            this.label4 = new System.Windows.Forms.Label();
+            this.textBoxStatistic = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // textBoxInput
             // 
             this.textBoxInput.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.textBoxInput.Location = new System.Drawing.Point(103, 92);
+            this.textBoxInput.Location = new System.Drawing.Point(103, 205);
             this.textBoxInput.Multiline = true;
             this.textBoxInput.Name = "textBoxInput";
-            this.textBoxInput.Size = new System.Drawing.Size(355, 360);
+            this.textBoxInput.Size = new System.Drawing.Size(355, 247);
             this.textBoxInput.TabIndex = 0;
             // 
             // textBoxResults
@@ -73,7 +75,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("SimSun-ExtB", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label1.Location = new System.Drawing.Point(103, 56);
+            this.label1.Location = new System.Drawing.Point(103, 164);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(274, 23);
             this.label1.TabIndex = 3;
@@ -92,7 +94,7 @@
             // textBoxDBName
             // 
             this.textBoxDBName.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.textBoxDBName.Location = new System.Drawing.Point(568, 92);
+            this.textBoxDBName.Location = new System.Drawing.Point(103, 103);
             this.textBoxDBName.Name = "textBoxDBName";
             this.textBoxDBName.Size = new System.Drawing.Size(346, 38);
             this.textBoxDBName.TabIndex = 6;
@@ -101,7 +103,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("SimSun-ExtB", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label3.Location = new System.Drawing.Point(568, 56);
+            this.label3.Location = new System.Drawing.Point(103, 54);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(106, 23);
             this.label3.TabIndex = 7;
@@ -162,11 +164,31 @@
             this.btnCreate.UseVisualStyleBackColor = true;
             this.btnCreate.Click += new System.EventHandler(this.btnCreate_Click);
             // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("SimSun-ExtB", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.label4.Location = new System.Drawing.Point(568, 54);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(130, 23);
+            this.label4.TabIndex = 13;
+            this.label4.Text = "Statistic:";
+            // 
+            // textBoxStatistic
+            // 
+            this.textBoxStatistic.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.textBoxStatistic.Location = new System.Drawing.Point(568, 103);
+            this.textBoxStatistic.Name = "textBoxStatistic";
+            this.textBoxStatistic.Size = new System.Drawing.Size(346, 38);
+            this.textBoxStatistic.TabIndex = 14;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(982, 661);
+            this.Controls.Add(this.textBoxStatistic);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.btnCreate);
             this.Controls.Add(this.btnUpdate);
             this.Controls.Add(this.btnDelete);
@@ -200,5 +222,7 @@
         private Button btnDelete;
         private Button btnUpdate;
         private Button btnCreate;
+        private Label label4;
+        private TextBox textBoxStatistic;
     }
 }

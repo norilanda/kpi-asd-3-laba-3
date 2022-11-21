@@ -167,11 +167,12 @@ namespace RedBlackTreeAlgo.DatabaseManager
             buffManager.setColor(buffManager.getRoot(), Color.BLACK);   //case 0 (node is root)
             return true;            
         }
-        public string? SearchData(int key)
+        public string? SearchData(int key, out int comparisonNumber)
         {
+            comparisonNumber = 0;
             string? result = null;
             byte[]? dataBytes = null;
-            Record? record = Search(key);
+            Record? record = Search(key, out comparisonNumber);
             if (record != null)
                 dataBytes = record.Data;
             if (dataBytes != null)
@@ -180,8 +181,9 @@ namespace RedBlackTreeAlgo.DatabaseManager
             }
             return result;
         }
-        private Record? Search(int key)
+        private Record? Search(int key, out int comparisonNumber)
         {
+            comparisonNumber = 0;
             Record? x = buffManager.getRoot();
             while (x != null  && x.Key != key)
             {
@@ -189,13 +191,15 @@ namespace RedBlackTreeAlgo.DatabaseManager
                     x = buffManager.getRecordFromPage(x.LeftPage, x.LeftOffset);
                 else
                     x = buffManager.getRecordFromPage(x.RightPage, x.RightOffset);
+                comparisonNumber++;
             }
+            comparisonNumber++;
             return x;           
         }
         public bool Delete(int key)
         {
-            bool flag = true;
-            Record? record = Search(key);
+            bool flag = true; int dummy;
+            Record? record = Search(key, out dummy);
             if (record == null) return false; //if there is no such an element
             Record? x, y = record;
             Color yOriginalColor = y.Color;
@@ -426,7 +430,8 @@ namespace RedBlackTreeAlgo.DatabaseManager
         }
         private bool Update(int key, byte[] data)
         {
-            Record? record = Search(key);
+            int dummy;
+            Record? record = Search(key, out dummy);
             if (record == null) return false; //if there is no such an element
             record.Data = data;
             buffManager.getPageWithNumber(record.recordPage).IsDirty = true;
