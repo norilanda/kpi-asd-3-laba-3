@@ -3,6 +3,8 @@ namespace RBTreeGui
     using RedBlackTreeAlgo;
     using RedBlackTreeAlgo.DatabaseManager;
     using RedBlackTreeAlgo.Exceptions;
+    using System.Linq.Expressions;
+    using System.Xml.Linq;
 
     public partial class Form1 : Form
     {
@@ -19,52 +21,66 @@ namespace RBTreeGui
         {
             string DBname = textBoxDBName.Text;
             string input = textBoxInput.Text;
-            DBname = "file.txt";
 
-            if (input.Length == 0 )
-                textBoxErrors.Text = "You haven't entered the data!";
-            else
-            {                
-                DBManager dBManager = new DBManager(DBname);
-                try
+            if (CheckIfDBExists(DBname))
+            {
+                if (input.Length == 0)
+                    textBoxErrors.Text = "You haven't entered the data!";
+                else
                 {
-                    dBManager.InsertData(input);
-                    textBoxErrors.Text = "Success; 1 row inserted";
+                    DBManager dBManager = new DBManager(DBname);
+                    try
+                    {
+                        dBManager.InsertData(input);
+                        textBoxErrors.Text = "Success; 1 row inserted";
+                    }
+                    catch (RecordAlreadyExists ex)
+                    {
+                        textBoxErrors.Text = "Failed; " + ex.Message;
+                    }
+                    catch (WrongDataFormat ex)
+                    {
+                        textBoxErrors.Text = "Failed; " + ex.Message;
+                    }
                 }
-                catch (RecordAlreadyExists ex)
-                {
-                    textBoxErrors.Text = "Failed; " + ex.Message;
-                }
-                catch (WrongDataFormat ex)
-                {
-                    textBoxErrors.Text = "Failed; " + ex.Message;
-                }
-            }           
+            }                   
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
             string DBname = textBoxDBName.Text;
             string input = textBoxInput.Text;
-            if (input.Length == 0)
-                textBoxErrors.Text = "You haven't entered the key!";
-            else
+            if (CheckIfDBExists(DBname)) 
             {
-                int keyToSearch = Convert.ToInt32(input);
-                DBname = "file.txt";
-                DBManager dBManager = new DBManager(DBname);
-                string? searchingData = dBManager.SearchData(keyToSearch);
-                if (searchingData != null)
-                {
-                    textBoxErrors.Text = "Success; 1 row returned";
-                    textBoxResults.Text = searchingData;
-                }
+                if (input.Length == 0)
+                    textBoxErrors.Text = "You haven't entered the key!";
+                else if (DBname.Length == 0)
+                    textBoxErrors.Text = "You haven't specified DB name!";
+
                 else
                 {
-                    textBoxErrors.Text = "Success; 0 row returned";
-                    textBoxResults.Text = "";
+                    try
+                    {
+                        int keyToSearch = Convert.ToInt32(input);                                       
+                        DBManager dBManager = new DBManager(DBname);
+                        string? searchingData = dBManager.SearchData(keyToSearch);
+                        if (searchingData != null)
+                        {
+                            textBoxErrors.Text = "Success; 1 row returned";
+                            textBoxResults.Text = searchingData;
+                        }
+                        else
+                        {
+                            textBoxErrors.Text = "Success; 0 row returned";
+                            textBoxResults.Text = "";
+                        }
+                    }
+                    catch (FormatException ex)
+                    {
+                        textBoxErrors.Text = "Key should be an integer!";
+                    }
                 }
-            }             
+            }                    
         }
 
         private void btnCreate_Click(object sender, EventArgs e)
@@ -72,7 +88,6 @@ namespace RBTreeGui
             string DBname = textBoxDBName.Text;
             string input = textBoxInput.Text;
 
-            DBname = "file.txt";
             input = "id int,lake char(15)";
             if (DBname.Length == 0)
                 textBoxErrors.Text = "You haven't entered the DB name!";
@@ -81,7 +96,7 @@ namespace RBTreeGui
             else
             {                
                 DBManager.CreateDatabase(DBname, input);
-                textBoxErrors.Text = "Success; DB "+ DBname + "has been created.";
+                textBoxErrors.Text = "Success; DB "+ DBname + " has been created.";
             }           
         }
 
@@ -90,19 +105,22 @@ namespace RBTreeGui
             string DBname = textBoxDBName.Text;
             string input = textBoxInput.Text;
 
-            DBname = "file.txt";
-            if (input.Length == 0)
-                textBoxErrors.Text = "You haven't entered the key!";
-            else
+            if (CheckIfDBExists(DBname))
             {
-                DBManager dBManager = new DBManager(DBname);
-                int keyToDelete = Convert.ToInt32(input);
-                bool flag = dBManager.Delete(keyToDelete);
-                if (flag)
-                    textBoxErrors.Text = "Success; 1 row deleted";
+                if (input.Length == 0)
+                    textBoxErrors.Text = "You haven't entered the key!";
                 else
-                    textBoxErrors.Text = "Failed";
-            }
+                {
+                    DBManager dBManager = new DBManager(DBname);
+                    int keyToDelete = Convert.ToInt32(input);
+                    bool flag = dBManager.Delete(keyToDelete);
+                    if (flag)
+                        textBoxErrors.Text = "Success; 1 row deleted";
+                    else
+                        textBoxErrors.Text = "Failed";
+                    textBoxResults.Text = "";
+                }
+            }            
         }
 
         private void btnUpdate_Click(object sender, EventArgs e)
@@ -110,18 +128,34 @@ namespace RBTreeGui
             string DBname = textBoxDBName.Text;
             string input = textBoxInput.Text;
 
-            DBname = "file.txt";
-            if (input.Length == 0)
-                textBoxErrors.Text = "You haven't entered the data!";
-            else
+            if (CheckIfDBExists(DBname))
             {
-                DBManager dBManager = new DBManager(DBname);
-                bool flag = dBManager.UpdateData(input);
-                if (flag)
-                    textBoxErrors.Text = "Success; 1 row updated";
+                if (input.Length == 0)
+                    textBoxErrors.Text = "You haven't entered the data!";
                 else
-                    textBoxErrors.Text = "Failed";
+                {
+                    DBManager dBManager = new DBManager(DBname);
+                    bool flag = dBManager.UpdateData(input);
+                    if (flag)
+                        textBoxErrors.Text = "Success; 1 row updated";
+                    else
+                        textBoxErrors.Text = "Failed";
+                }
+            }                
+        }
+        private bool CheckIfDBExists(string DBname)
+        {
+            if (DBname.Length == 0)
+            {
+                textBoxErrors.Text = "You haven't specified DB name!";
+                return false;
+            }                
+            else if (!File.Exists(DBname))
+            {
+                textBoxErrors.Text = "There is no such a DB";
+                return false;
             }
+            return true;
         }
     }
 }
