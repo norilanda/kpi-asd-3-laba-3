@@ -42,6 +42,7 @@
             this.btnCreate = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.textBoxStatistic = new System.Windows.Forms.TextBox();
+            this.btnShowStructure = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // textBoxInput
@@ -68,7 +69,7 @@
             this.textBoxErrors.Location = new System.Drawing.Point(103, 540);
             this.textBoxErrors.Multiline = true;
             this.textBoxErrors.Name = "textBoxErrors";
-            this.textBoxErrors.Size = new System.Drawing.Size(811, 78);
+            this.textBoxErrors.Size = new System.Drawing.Size(634, 78);
             this.textBoxErrors.TabIndex = 2;
             // 
             // label1
@@ -134,7 +135,7 @@
             // btnDelete
             // 
             this.btnDelete.Font = new System.Drawing.Font("SimSun", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.btnDelete.Location = new System.Drawing.Point(424, 476);
+            this.btnDelete.Location = new System.Drawing.Point(436, 476);
             this.btnDelete.Name = "btnDelete";
             this.btnDelete.Size = new System.Drawing.Size(122, 47);
             this.btnDelete.TabIndex = 10;
@@ -145,7 +146,7 @@
             // btnUpdate
             // 
             this.btnUpdate.Font = new System.Drawing.Font("SimSun", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.btnUpdate.Location = new System.Drawing.Point(590, 476);
+            this.btnUpdate.Location = new System.Drawing.Point(610, 476);
             this.btnUpdate.Name = "btnUpdate";
             this.btnUpdate.Size = new System.Drawing.Size(127, 47);
             this.btnUpdate.TabIndex = 11;
@@ -156,9 +157,9 @@
             // btnCreate
             // 
             this.btnCreate.Font = new System.Drawing.Font("SimSun", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.btnCreate.Location = new System.Drawing.Point(761, 476);
+            this.btnCreate.Location = new System.Drawing.Point(789, 476);
             this.btnCreate.Name = "btnCreate";
-            this.btnCreate.Size = new System.Drawing.Size(112, 47);
+            this.btnCreate.Size = new System.Drawing.Size(125, 47);
             this.btnCreate.TabIndex = 12;
             this.btnCreate.Text = "Create";
             this.btnCreate.UseVisualStyleBackColor = true;
@@ -182,11 +183,23 @@
             this.textBoxStatistic.Size = new System.Drawing.Size(346, 38);
             this.textBoxStatistic.TabIndex = 14;
             // 
+            // btnShowStructure
+            // 
+            this.btnShowStructure.Font = new System.Drawing.Font("SimSun", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.btnShowStructure.Location = new System.Drawing.Point(789, 540);
+            this.btnShowStructure.Name = "btnShowStructure";
+            this.btnShowStructure.Size = new System.Drawing.Size(125, 78);
+            this.btnShowStructure.TabIndex = 15;
+            this.btnShowStructure.Text = "Show Structure";
+            this.btnShowStructure.UseVisualStyleBackColor = true;
+            this.btnShowStructure.Click += new System.EventHandler(this.btnShowStructure_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(982, 661);
+            this.Controls.Add(this.btnShowStructure);
             this.Controls.Add(this.textBoxStatistic);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.btnCreate);
@@ -224,5 +237,6 @@
         private Button btnCreate;
         private Label label4;
         private TextBox textBoxStatistic;
+        private Button btnShowStructure;
     }
 }

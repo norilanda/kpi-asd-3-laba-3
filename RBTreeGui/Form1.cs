@@ -3,6 +3,7 @@ namespace RBTreeGui
     using RedBlackTreeAlgo;
     using RedBlackTreeAlgo.DatabaseManager;
     using RedBlackTreeAlgo.Exceptions;
+    using RedBlackTreeGui;
     using System.Linq.Expressions;
     using System.Xml.Linq;
 
@@ -156,6 +157,12 @@ namespace RBTreeGui
                 return false;
             }
             return true;
+        }
+
+        private void btnShowStructure_Click(object sender, EventArgs e)
+        {
+            KeysLayout formLayout = new KeysLayout();
+            formLayout.Show();
         }
     }
 }
