@@ -321,7 +321,34 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 }
                 else //if right child
                 {
-
+                    w = buffManager.getLeft(buffManager.getParent(x));
+                    if (w.Color == Color.RED)
+                    {
+                        buffManager.setColor(w, Color.BLACK);
+                        buffManager.setColor(buffManager.getParent(x), Color.RED);
+                        buffManager.RightRotate(buffManager.getParent(x));
+                        w = buffManager.getLeft(buffManager.getParent(x));
+                    }
+                    if (buffManager.getRight(w).Color == Color.BLACK && buffManager.getLeft(w).Color == Color.BLACK)
+                    {
+                        buffManager.setColor(w, Color.RED);
+                        x = buffManager.getParent(x);
+                    }
+                    else
+                    {
+                        if (buffManager.getLeft(w).Color == Color.BLACK)
+                        {
+                            buffManager.setColor(buffManager.getRight(w), Color.BLACK);
+                            buffManager.setColor(w, Color.RED);
+                            buffManager.LeftRotate(w);
+                            w = buffManager.getLeft(buffManager.getParent(w));
+                        }
+                        buffManager.setColor(w, buffManager.getParent(x).Color);
+                        buffManager.setColor(buffManager.getParent(x), Color.BLACK);
+                        buffManager.setColor(buffManager.getLeft(w), Color.BLACK);
+                        buffManager.RightRotate(buffManager.getParent(x));
+                        x = buffManager.getRoot();
+                    }
                 }
             }
             return true;
