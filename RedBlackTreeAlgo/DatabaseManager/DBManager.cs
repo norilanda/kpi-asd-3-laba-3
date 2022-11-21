@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using RedBlackTreeAlgo.FileStructure;
+using RedBlackTreeAlgo.Exceptions;
 using System.Reflection;
 using System.IO;
 using System.Xml.Linq;
@@ -68,17 +68,16 @@ namespace RedBlackTreeAlgo.DatabaseManager
             }
             return md;
         }
-        public bool InsertData(string data)
+        public void InsertData(string data)
         {
             int key = Convert.ToInt32(data.Split(',')[0]);
             byte[] dataBytes = buffManager.GetDataBytesFromString(data);
             if (dataBytes.Length == Record.dataSpace)
-            {
-                return Insert(key, dataBytes);
-            }
-            return false;
+                Insert(key, dataBytes);
+            else
+                throw new WrongDataFormat("Data has wrong format");
         }
-        private bool Insert(int key, byte[] data)
+        private void Insert(int key, byte[] data)
         {
             Record? y = null;
             Record? x = buffManager.getRoot();
@@ -90,7 +89,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 else if (key > x.Key)
                     x = buffManager.getRecordFromPage(x.RightPage, x.RightOffset);
                 else
-                    return false;
+                    throw new RecordAlreadyExists("Record with key "+ key + " already Exsists");
             }
 
             Page currPage = buffManager.getCurrPage();
@@ -110,8 +109,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 buffManager.setRoot(record);//root = record
             
             bool flag =  InsertFixup(record);
-            buffManager.CleanPagesAndWriteRoot();
-            return flag;
+            buffManager.CleanPagesAndWriteRoot();            
         }
         private bool InsertFixup(Record record)
         {

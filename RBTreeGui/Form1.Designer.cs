@@ -48,16 +48,16 @@
             this.textBoxInput.Location = new System.Drawing.Point(103, 92);
             this.textBoxInput.Multiline = true;
             this.textBoxInput.Name = "textBoxInput";
-            this.textBoxInput.Size = new System.Drawing.Size(318, 360);
+            this.textBoxInput.Size = new System.Drawing.Size(355, 360);
             this.textBoxInput.TabIndex = 0;
             // 
             // textBoxResults
             // 
             this.textBoxResults.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.textBoxResults.Location = new System.Drawing.Point(493, 205);
+            this.textBoxResults.Location = new System.Drawing.Point(568, 205);
             this.textBoxResults.Multiline = true;
             this.textBoxResults.Name = "textBoxResults";
-            this.textBoxResults.Size = new System.Drawing.Size(320, 247);
+            this.textBoxResults.Size = new System.Drawing.Size(346, 247);
             this.textBoxResults.TabIndex = 1;
             // 
             // textBoxErrors
@@ -66,7 +66,7 @@
             this.textBoxErrors.Location = new System.Drawing.Point(103, 540);
             this.textBoxErrors.Multiline = true;
             this.textBoxErrors.Name = "textBoxErrors";
-            this.textBoxErrors.Size = new System.Drawing.Size(685, 78);
+            this.textBoxErrors.Size = new System.Drawing.Size(811, 78);
             this.textBoxErrors.TabIndex = 2;
             // 
             // label1
@@ -83,7 +83,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("SimSun-ExtB", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label2.Location = new System.Drawing.Point(493, 164);
+            this.label2.Location = new System.Drawing.Point(568, 164);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(106, 23);
             this.label2.TabIndex = 4;
@@ -92,16 +92,16 @@
             // textBoxDBName
             // 
             this.textBoxDBName.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.textBoxDBName.Location = new System.Drawing.Point(493, 92);
+            this.textBoxDBName.Location = new System.Drawing.Point(568, 92);
             this.textBoxDBName.Name = "textBoxDBName";
-            this.textBoxDBName.Size = new System.Drawing.Size(320, 38);
+            this.textBoxDBName.Size = new System.Drawing.Size(346, 38);
             this.textBoxDBName.TabIndex = 6;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("SimSun-ExtB", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label3.Location = new System.Drawing.Point(493, 56);
+            this.label3.Location = new System.Drawing.Point(568, 56);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(106, 23);
             this.label3.TabIndex = 7;
@@ -166,7 +166,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(928, 656);
+            this.ClientSize = new System.Drawing.Size(982, 661);
             this.Controls.Add(this.btnCreate);
             this.Controls.Add(this.btnUpdate);
             this.Controls.Add(this.btnDelete);

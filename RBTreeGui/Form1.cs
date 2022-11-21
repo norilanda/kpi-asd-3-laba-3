@@ -2,7 +2,7 @@ namespace RBTreeGui
 {
     using RedBlackTreeAlgo;
     using RedBlackTreeAlgo.DatabaseManager;
-
+    using RedBlackTreeAlgo.Exceptions;
 
     public partial class Form1 : Form
     {
@@ -26,12 +26,19 @@ namespace RBTreeGui
             else
             {                
                 DBManager dBManager = new DBManager(DBname);
-                bool flag = dBManager.InsertData(input);
-
-                if (flag)
+                try
+                {
+                    dBManager.InsertData(input);
                     textBoxErrors.Text = "Success; 1 row inserted";
-                else
-                    textBoxErrors.Text = "Failed";
+                }
+                catch (RecordAlreadyExists ex)
+                {
+                    textBoxErrors.Text = "Failed; " + ex.Message;
+                }
+                catch (WrongDataFormat ex)
+                {
+                    textBoxErrors.Text = "Failed; " + ex.Message;
+                }
             }           
         }
 
