@@ -12,7 +12,7 @@ namespace RedBlackTreeAlgo.FileStructure
     {
         /* Class Page represents the block in file.
          */
-        public static int spacePerPage = 4 * 1024;    //page size in bytes
+        public static int spacePerPage = 8 * 1024;    //page size in bytes
         public static int pageHeaderSize = sizeof(int) * 3 ;   //size in file
         //header
         private int _number;

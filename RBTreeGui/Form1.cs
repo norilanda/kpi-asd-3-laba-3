@@ -11,10 +11,8 @@ namespace RBTreeGui
         public Form1()
         {
             InitializeComponent();
-            
-            //byte[] md = Parser.CreateMetadataForDB("user_id int,name char(10),income double", out temp); //should write without space
-            //byte[] d = Parser.DataToByte(md, "5,AnnMarrie,400.25");
-            //string dat = Parser.BytesToData(md, d);            
+
+                     
         }
 
         private void btnInsert_Click(object sender, EventArgs e)
