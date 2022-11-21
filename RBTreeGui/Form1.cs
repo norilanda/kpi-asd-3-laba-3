@@ -27,7 +27,6 @@ namespace RBTreeGui
                 DBname = "file.txt";
                 DBManager dBManager = new DBManager(DBname);
                 bool flag = dBManager.InsertData(input);
-                //dBManager.InsertData(input);
 
                 if (flag)
                     textBoxErrors.Text = "Success; 1 row inserted";
@@ -77,6 +76,26 @@ namespace RBTreeGui
                 DBManager.CreateDatabase(DBname, input);
                 textBoxErrors.Text = "Success; DB "+ DBname + "has been created.";
             }           
+        }
+
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+            string DBname = textBoxDBName.Text;
+            string input = textBoxInput.Text;
+
+            DBname = "file.txt";
+            if (input.Length == 0)
+                textBoxErrors.Text = "You haven't entered the key!";
+            else
+            {
+                DBManager dBManager = new DBManager(DBname);
+                int keyToDelete = Convert.ToInt32(input);
+                bool flag = dBManager.Delete(keyToDelete);
+                if (flag)
+                    textBoxErrors.Text = "Success; 1 row deleted";
+                else
+                    textBoxErrors.Text = "Failed";
+            }
         }
     }
 }

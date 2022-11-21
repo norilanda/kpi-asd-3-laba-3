@@ -87,9 +87,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
             return finalMetadata;
         }
         public static byte[] DataToByte(List<(int typeSize, char t, string cName)> colmns, string data, int recordDataSize)
-        {
-            //int recordDataSize;
-            //List<(int typeSize, char t, string cName)> colmns = MetadataToData(metadata, out recordDataSize);
+        {            
             byte[] dataBytes = new byte[recordDataSize];
             int pos = 0;
             int i = 0;
@@ -142,10 +140,8 @@ namespace RedBlackTreeAlgo.DatabaseManager
             return colmns;
         }
         public static string BytesToData(List<(int typeSize, char t, string cName)> colmns, byte[] data)
-        {
-            //int temp;
-            string dataString = "";
-            //List<(int typeSize, char t, string cName)> colmns = MetadataToData(metadata, out temp);
+        {            
+            string dataString = "";           
             int i = 0;
             int pos = 0;
             while (i < colmns.Count)
@@ -173,7 +169,6 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 dataString += "; \n";
                 i++;
             }
-
             return dataString;
         }
     }

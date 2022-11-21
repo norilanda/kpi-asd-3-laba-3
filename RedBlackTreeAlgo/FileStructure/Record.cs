@@ -119,12 +119,16 @@ namespace RedBlackTreeAlgo.FileStructure
                 return false;
             return true;
         }
-        //public bool isNull()//???????????????????????????
-        //{
-        //    if (_data == )
-        //        return true;
-        //    return false;
-        //}
+        public void DeleteRecordData()
+        {
+            _key = 0;
+            this._data = new byte[dataSpace];
+            _color = Color.RED;
+            _leftPage = _leftOffset = 0;
+            _rightPage = _rightOffset = 0;
+            _parentPage = _parentOffset = 0;
+            this.recordPage = this.recordOffset = 0;
+        }
         public byte[] RecordSerialization()
         {
             const int LAST_BIT_POSITION = 7;

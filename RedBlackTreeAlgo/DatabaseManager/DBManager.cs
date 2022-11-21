@@ -192,21 +192,11 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 else
                     x = buffManager.getRecordFromPage(x.RightPage, x.RightOffset);
             }
-            return x;
-            /*
-            Node? x = root;
-            while (x != null && x.Key != key)
-            {
-                if (key < x.Key)
-                    x = x.Left;
-                else
-                    x = x.Right;
-            }
-            return x;
-            */
+            return x;           
         }
         public bool Delete(int key)
         {
+            bool flag = true;
             Record? record = Search(key);
             if (record == null) return false; //if there is no such an element
             Record? x, y = record;
@@ -240,9 +230,11 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 buffManager.setParent(buffManager.getLeft(y), y);
                 buffManager.setColor(y, record.Color);
                 if (yOriginalColor == Color.BLACK)
-                    return Delete_Fixup(x);
+                    flag = Delete_Fixup(x);
             }
-            return true;
+            record.DeleteRecordData();
+            buffManager.CleanPagesAndWriteRoot();
+            return flag;
             /*
             Node? node = Search(key);
             if (node == null) return;
