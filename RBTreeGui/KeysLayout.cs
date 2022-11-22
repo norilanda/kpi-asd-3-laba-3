@@ -19,16 +19,7 @@ namespace RedBlackTreeGui
             DisplayKeys(keys, rootKey);
         }
         private void DisplayKeys(Dictionary<int, (int color, int? leftKey, int? rightKey)> keys, int? rootKey)
-        {
-            //TreeNode node, child1, child2;
-            //node = treeViewKeys.Nodes.Add("Master node");
-            //child1 = node.Nodes.Add("Child node");
-            //child1.BackColor = Color.Red;
-            //child2 = node.Nodes.Add("Child node 2");
-
-            //node = child1;
-            //child1 = node.Nodes.Add("mychild");
-            //child2 = node.Nodes.Add("mychild");
+        {            
             TreeNode root;
             if (rootKey != null)
             {
@@ -37,8 +28,6 @@ namespace RedBlackTreeGui
             }
             else
                 root = treeViewKeys.Nodes.Add("null");
-
-
 
             treeViewKeys.ExpandAll();
         }
@@ -56,17 +45,30 @@ namespace RedBlackTreeGui
             {
                 int? leftKey = keys[(int)key].leftKey;
                 int? rightKey = keys[(int)key].rightKey;
-                leftChild = parent.Nodes.Add(Convert.ToString(leftKey));
+                leftChild = parent.Nodes.Add(GetKeyAsString(leftKey));
                 DisplayKeysRecurion(keys, leftChild, leftKey);
-                rightChild = parent.Nodes.Add(Convert.ToString(rightKey));
+                rightChild = parent.Nodes.Add(GetKeyAsString(rightKey));
                 DisplayKeysRecurion(keys, rightChild, rightKey);
-            }
+            }           
+        }
+        private string GetKeyAsString(int? key)
+        {
+            const int STR_LENGHT = 4;
+            string str;
+            if (key == null)
+                str = "null";
             else
+                str = Convert.ToString((int)key);
+            int i = 0;
+            while (str.Length < STR_LENGHT)
             {
-                TreeNode nullNode = parent.Nodes.Add("null");
-                nullNode.BackColor = Color.Black;
-                nullNode.ForeColor = Color.White;
+                if (i % 2 == 0)
+                    str = str + ' ';
+                else
+                    str = ' ' + str;
+                i++;
             }
+            return str;
         }
     }
 }
