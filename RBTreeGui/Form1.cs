@@ -13,7 +13,7 @@ namespace RBTreeGui
         {
             InitializeComponent();
 
-                     
+            
         }
 
         private void btnInsert_Click(object sender, EventArgs e)
@@ -161,8 +161,16 @@ namespace RBTreeGui
 
         private void btnShowStructure_Click(object sender, EventArgs e)
         {
-            KeysLayout formLayout = new KeysLayout();
-            formLayout.Show();
+            string DBname = textBoxDBName.Text;            
+
+            if (CheckIfDBExists(DBname))
+            {
+                DBManager dBManager = new DBManager(DBname);
+                int? rootKey = null;
+                Dictionary<int, (int color, int? leftKey, int? rightKey)> keys = dBManager.GetNodesToDisplay(ref rootKey);
+                KeysLayout formLayout = new KeysLayout(keys, rootKey);
+                formLayout.Show();
+            }
         }
     }
 }

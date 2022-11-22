@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.vScrollBar1 = new System.Windows.Forms.VScrollBar();
-            this.treeView1 = new System.Windows.Forms.TreeView();
+            this.treeViewKeys = new System.Windows.Forms.TreeView();
             this.SuspendLayout();
             // 
             // vScrollBar1
@@ -39,19 +39,19 @@
             this.vScrollBar1.Size = new System.Drawing.Size(26, 619);
             this.vScrollBar1.TabIndex = 0;
             // 
-            // treeView1
+            // treeViewKeys
             // 
-            this.treeView1.Location = new System.Drawing.Point(12, 12);
-            this.treeView1.Name = "treeView1";
-            this.treeView1.Size = new System.Drawing.Size(1041, 615);
-            this.treeView1.TabIndex = 1;
+            this.treeViewKeys.Location = new System.Drawing.Point(12, 12);
+            this.treeViewKeys.Name = "treeViewKeys";
+            this.treeViewKeys.Size = new System.Drawing.Size(1041, 615);
+            this.treeViewKeys.TabIndex = 1;
             // 
             // KeysLayout
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1097, 639);
-            this.Controls.Add(this.treeView1);
+            this.Controls.Add(this.treeViewKeys);
             this.Controls.Add(this.vScrollBar1);
             this.Name = "KeysLayout";
             this.Text = "KeysLayout";
@@ -62,6 +62,6 @@
         #endregion
 
         private VScrollBar vScrollBar1;
-        private TreeView treeView1;
+        private TreeView treeViewKeys;
     }
 }

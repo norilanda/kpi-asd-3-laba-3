@@ -438,5 +438,32 @@ namespace RedBlackTreeAlgo.DatabaseManager
             buffManager.CleanPagesAndWriteRoot();
             return true;
         }
+        public Dictionary<int, (int color, int? leftKey, int? rightKey)> GetNodesToDisplay(ref int? rootKey)
+        {
+            Dictionary<int, (int color, int? leftKey, int? rightKey)> keys = new Dictionary<int, (int color, int? leftKey, int? rightKey)>();
+            Record? rootRecord = buffManager.getRoot();
+            if (rootRecord != null)
+                rootKey = rootRecord.Key;
+            GetNodesRecursion(rootRecord, keys);
+
+            return keys;
+        }
+        private void GetNodesRecursion(Record? record, Dictionary<int, (int color, int? leftKey, int? rightKey)> keys)
+        {
+            if (record != null)
+            {
+                int? leftKeyValue = null;
+                int? rightKeyValue = null;
+                Record? leftChild = buffManager.getLeft(record);
+                Record? rightChild = buffManager.getRight(record);
+                if (leftChild != null)
+                    leftKeyValue = leftChild.Key;
+                if (rightChild != null)
+                    rightKeyValue = rightChild.Key;
+                keys.Add(record.Key, ((int)record.Color, leftKeyValue, rightKeyValue));
+                GetNodesRecursion(leftChild, keys);
+                GetNodesRecursion(rightChild, keys);
+            }
+        }
     }
 }
