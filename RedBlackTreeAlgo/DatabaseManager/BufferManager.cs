@@ -251,12 +251,12 @@ namespace RedBlackTreeAlgo.DatabaseManager
             if (getLeft(y)!=null)              
                 setParent(getLeft(y), x);   //y.Left.P = x
             setParent(y, getParent(x)); //y.P = x.P
-                                        //
+                                        
             if (x.ParentOffset == 0) //if x.P == null
                 setRoot(y); //set root to y
-            else if (Record.AreEqual(x, getLeft(getParent(x)))) //x == x.P.Left
+            else if (Record.AreEqual(x, getLeft(getParent(x)))) //x == x.P.Left//(x is left child)
                 setLeft(getParent(x), y);//x.P.Left = y
-            else
+            else //(x is right child)
                 setRight(getParent(x), y);//x.P.Right = y
             setLeft(y, x); //y.Left = x
             setParent(x, y);
@@ -268,7 +268,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
             if (getRight(y)!=null)
                 setParent(getRight(y), x);   //y.Right.P = x
             setParent(y, getParent(x)); //y.P = x.P
-                                        //
+                                        
             if (x.ParentOffset == 0) //if x.P == null
                 setRoot(y); //set root to y
             else if (Record.AreEqual(x, getRight(getParent(x)))) //x == x.P.Right

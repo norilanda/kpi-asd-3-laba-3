@@ -96,14 +96,7 @@ namespace RedBlackTreeAlgo.FileStructure
             _freeSpace -= Record.RecordSize;
             _position += Record.RecordSize;
             _isDirty = true;
-        }
-        //public void AddData(byte[] data)//?????????????????
-        //{
-        //    data.CopyTo(buff, _position);
-        //    _position += data.Length;   //move pointer to next position
-        //    _freeSpace -= data.Length;
-        //    _isDirty = true;
-        //}
+        }       
         public bool isEnoughSpace()
         {
             return _freeSpace >= Record.RecordSize;

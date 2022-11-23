@@ -29,6 +29,8 @@ namespace RedBlackTreeAlgo.DatabaseManager
             text = text.ToLower();
             totalSize = 0;
             string[] lines = text.Split(StatementDelim);    //divide into statements
+            for (int i=0; i<lines.Length; i++)
+                lines[i] = lines[i].Trim();
             for(int i=0; i<lines.Length; i++)
             {
                 string[] sublines = lines[i].Split(wordsDelim);
@@ -92,10 +94,10 @@ namespace RedBlackTreeAlgo.DatabaseManager
             int pos = 0;
             int i = 0;
             string[] strings = data.Split(',');
-
+            for (int j = 0; j < strings.Length; j++)
+                strings[j] = strings[j].Trim();
             while (i < colmns.Count)
             {
-
                 if (colmns[i].t == IntCh)
                 {
                     int dt = Convert.ToInt32(strings[i]);

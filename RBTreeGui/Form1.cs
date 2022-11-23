@@ -87,9 +87,8 @@ namespace RBTreeGui
         private void btnCreate_Click(object sender, EventArgs e)
         {
             string DBname = textBoxDBName.Text;
-            string input = textBoxInput.Text;
+            string input = textBoxInput.Text;//example: input = "id int,lake char(15)";
 
-            input = "id int,lake char(15)";
             if (DBname.Length == 0)
                 textBoxErrors.Text = "You haven't entered the DB name!";
             else if(input.Length == 0)
