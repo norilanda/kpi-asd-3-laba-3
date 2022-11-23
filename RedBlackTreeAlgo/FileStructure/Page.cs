@@ -74,7 +74,7 @@ namespace RedBlackTreeAlgo.FileStructure
             Array.Copy(buff, offset, record, 0, Record.RecordSize);
             return new Record(record, _number, offset);
         }
-        public Record getRecord(int offset)
+        public Record? getRecord(int offset)
         {
             try
             {

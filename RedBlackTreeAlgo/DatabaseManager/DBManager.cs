@@ -444,12 +444,14 @@ namespace RedBlackTreeAlgo.DatabaseManager
             Record? rootRecord = buffManager.getRoot();
             if (rootRecord != null)
                 rootKey = rootRecord.Key;
-            GetNodesRecursion(rootRecord, keys);
+            GetNodesRecursion(rootRecord, keys, 0);
 
             return keys;
         }
-        private void GetNodesRecursion(Record? record, Dictionary<int, (int color, int? leftKey, int? rightKey)> keys)
+        private void GetNodesRecursion(Record? record, Dictionary<int, (int color, int? leftKey, int? rightKey)> keys, int currHeight)
         {
+            int maxNodesNumberToDisplay = 50;
+            int height = (int)Math.Log2(maxNodesNumberToDisplay + 1);
             if (record != null)
             {
                 int? leftKeyValue = null;
@@ -461,8 +463,11 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 if (rightChild != null)
                     rightKeyValue = rightChild.Key;
                 keys.Add(record.Key, ((int)record.Color, leftKeyValue, rightKeyValue));
-                GetNodesRecursion(leftChild, keys);
-                GetNodesRecursion(rightChild, keys);
+                if (currHeight <= height)
+                {
+                    GetNodesRecursion(leftChild, keys, currHeight+1);
+                    GetNodesRecursion(rightChild, keys, currHeight + 1);
+                }                
             }
         }
     }

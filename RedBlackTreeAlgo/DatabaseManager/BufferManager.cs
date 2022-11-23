@@ -311,14 +311,6 @@ namespace RedBlackTreeAlgo.DatabaseManager
             }
             return record;
 
-            /*private Node Minimum(Node node)
-            {
-                while (node.Left != null)
-                {
-                    node = node.Left;
-                }
-                return node;
-            }*/
         }
 
     }

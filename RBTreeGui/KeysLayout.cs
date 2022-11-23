@@ -34,23 +34,38 @@ namespace RedBlackTreeGui
         private void DisplayKeysRecurion(Dictionary<int, (int color, int? leftKey, int? rightKey)> keys, TreeNode parent, int? key)
         {
             TreeNode leftChild, rightChild;
-            if (key != null && keys[(int)key].color == 0)
-                parent.BackColor= Color.Red;
+            if (key != null)
+            {
+                if ( keys.ContainsKey((int)key))
+                {
+                    if (keys[(int)key].color == 0)
+                        parent.BackColor = Color.Red;
+                    else
+                    {
+                        parent.BackColor = Color.Black;
+                        parent.ForeColor = Color.White;
+                    }
+                    if (key != null)
+                    {
+                        int? leftKey, rightKey;
+                        leftKey = keys[(int)key].leftKey;
+                        rightKey = keys[(int)key].rightKey;
+                        leftChild = parent.Nodes.Add(GetKeyAsString(leftKey));
+                        DisplayKeysRecurion(keys, leftChild, leftKey);
+                        rightChild = parent.Nodes.Add(GetKeyAsString(rightKey));
+                        DisplayKeysRecurion(keys, rightChild, rightKey);
+                    }
+                }
+                else
+                    parent.Text = " ... ";
+            }
             else
             {
                 parent.BackColor = Color.Black;
                 parent.ForeColor = Color.White;
-            }
-            if (key != null)
-            {
-                int? leftKey = keys[(int)key].leftKey;
-                int? rightKey = keys[(int)key].rightKey;
-                leftChild = parent.Nodes.Add(GetKeyAsString(leftKey));
-                DisplayKeysRecurion(keys, leftChild, leftKey);
-                rightChild = parent.Nodes.Add(GetKeyAsString(rightKey));
-                DisplayKeysRecurion(keys, rightChild, rightKey);
-            }           
+            }            
         }
+
         private string GetKeyAsString(int? key)
         {
             const int STR_LENGHT = 4;
