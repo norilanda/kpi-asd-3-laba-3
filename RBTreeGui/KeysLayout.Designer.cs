@@ -38,14 +38,14 @@
             this.treeViewKeys.ItemHeight = 20;
             this.treeViewKeys.Location = new System.Drawing.Point(12, 12);
             this.treeViewKeys.Name = "treeViewKeys";
-            this.treeViewKeys.Size = new System.Drawing.Size(1041, 615);
+            this.treeViewKeys.Size = new System.Drawing.Size(1176, 676);
             this.treeViewKeys.TabIndex = 1;
             // 
             // KeysLayout
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1097, 639);
+            this.ClientSize = new System.Drawing.Size(1200, 700);
             this.Controls.Add(this.treeViewKeys);
             this.Name = "KeysLayout";
             this.Text = "KeysLayout";
