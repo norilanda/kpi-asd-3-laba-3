@@ -13,7 +13,19 @@ namespace RBTreeGui
         {
             InitializeComponent();
 
-            
+            string DBname = "f1";
+            string input = "id int";
+            //DBManager.CreateDatabase(DBname, input);
+            textBoxDBName.Text = DBname;
+            //textBoxErrors.Text = "Success; DB " + DBname + " has been created.";
+            //DBManager dBManager = new DBManager(DBname);
+            //dBManager.InsertData("4");
+            //dBManager.InsertData("5");
+            //dBManager.InsertData("89");
+            //dBManager.InsertData("97");
+            //dBManager.Delete(5);
+            //dBManager.Delete(4);
+            //dBManager.Delete(89);
         }
 
         private void btnInsert_Click(object sender, EventArgs e)
@@ -74,6 +86,7 @@ namespace RBTreeGui
                         {
                             textBoxErrors.Text = "Success; 0 row returned";
                             textBoxResults.Text = "";
+                            textBoxStatistic.Text = Convert.ToString(comparisonNumber);
                         }
                     }
                     catch (FormatException ex)

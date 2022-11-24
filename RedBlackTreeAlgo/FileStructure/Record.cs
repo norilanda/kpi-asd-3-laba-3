@@ -18,7 +18,7 @@ namespace RedBlackTreeAlgo.FileStructure
         /*offset - number of bytes from the page start*/
         public static int dataSpace;
 
-        private int _key;
+        private int? _key;
         //data
         private byte[] _data;
         private Color _color;
@@ -36,9 +36,10 @@ namespace RedBlackTreeAlgo.FileStructure
         //helping vars
         public int recordPage;  //in which page curr record is located
         public int recordOffset;    //location where curr record is located
+        public Record? P, leftNill, rightNill;
 
         //getters/setters
-        public int Key
+        public int? Key
         {
             get { return _key; }
         }
@@ -47,16 +48,7 @@ namespace RedBlackTreeAlgo.FileStructure
             get { return _data; }
             set { _data = value; }
         }
-        //public int Datapage
-        //{
-        //    get { return _dataPage; }
-        //    set { _dataPage = value; }
-        //}
-        //public int DataOffset
-        //{
-        //    get { return _dataOffset; }
-        //    set { _dataOffset = value; }
-        //}
+      
         public Color Color
         {
             get { return _color; }
@@ -105,6 +97,9 @@ namespace RedBlackTreeAlgo.FileStructure
             _parentPage = _parentOffset = 0;
             this.recordPage = recordPage;
             this.recordOffset = recordOffset;
+
+            this.leftNill = new Record(this);
+            this.rightNill = new Record(this);
         }
         public Record(byte[] pageInBytes, int recordPage, int recordOffset) //reding record by deserialization
         {
@@ -112,15 +107,29 @@ namespace RedBlackTreeAlgo.FileStructure
             this.recordPage = recordPage;
             this.recordOffset = recordOffset;
             RecordDeserialization(pageInBytes); }
-        public static bool AreEqual(Record record1, Record record2)
+        public Record(Record? parent)
+        {
+            _key = null;
+            _color = Color.BLACK;
+            P = parent;
+        }
+        public static bool AreEqual(Record? record1, Record? record2)
         {
             if ((record1 != null && record2 ==null) || (record1 == null && record2 != null))
                 return false;
+            if (record1 == null && record2 == null)
+                return true;
             if (record1.recordPage != record2.recordPage)
                 return false;
             if (record1.recordOffset != record2.recordOffset) 
                 return false;
             return true;
+        }
+        public bool IsNill()
+        {
+            if (this._key == null)
+                return true;
+            return false;
         }
         public void DeleteRecordData()
         {
@@ -131,14 +140,15 @@ namespace RedBlackTreeAlgo.FileStructure
             _rightPage = _rightOffset = 0;
             _parentPage = _parentOffset = 0;
             this.recordPage = this.recordOffset = 0;
+            this.leftNill = this.rightNill = null;
         }
         public byte[] RecordSerialization()
         {
             const int LAST_BIT_POSITION = 7;
-            //Func<byte[], byte[], int, void> CopyField = (bytes, recordBytes, pos) => { } //maybe later
+           
             byte[] recordBytes = new byte[Record.RecordSize];
             int pos = 0;
-            byte[] bytes = BitConverter.GetBytes(_key);
+            byte[] bytes = BitConverter.GetBytes((int)_key);
             bytes.CopyTo(recordBytes, pos);
             pos += bytes.Length;
 
@@ -200,6 +210,17 @@ namespace RedBlackTreeAlgo.FileStructure
                 this._color = Color.BLACK;
             offsetAndColor[^1] = (byte)(bytes[^1] & ~(1 << LAST_BIT_POSITION));
             this._parentOffset = BitConverter.ToInt32(offsetAndColor, 0);
+
+            if (this._leftOffset == 0)
+            {
+                Record nill = new Record(this);
+                this.leftNill= nill;
+            }
+            if (this._rightOffset == 0)
+            {
+                Record nill = new Record(this);
+                this.rightNill= nill;
+            }
         }
     }
 }

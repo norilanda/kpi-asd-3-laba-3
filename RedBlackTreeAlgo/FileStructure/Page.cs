@@ -74,16 +74,12 @@ namespace RedBlackTreeAlgo.FileStructure
             Array.Copy(buff, offset, record, 0, Record.RecordSize);
             return new Record(record, _number, offset);
         }
-        public Record? getRecord(int offset)
+        public Record getRecord(int offset)
         {
-            try
-            {
+            if (records.ContainsKey(offset))
                 return records[offset];
-            }
-            catch (System.Collections.Generic.KeyNotFoundException e)
-            {
-                return null;
-            }        
+            else
+                return new Record(null);//return nill   
         }
         public void setRecord(int offset, Record record)
         {

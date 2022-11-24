@@ -79,15 +79,15 @@ namespace RedBlackTreeAlgo.DatabaseManager
         }
         private void Insert(int key, byte[] data)
         {
-            Record? y = null;
-            Record? x = buffManager.getRoot();
-            while(x!=null)//while x != null
+            Record y = new Record(null);// y = nill
+            Record x = buffManager.getRoot();
+            while(!x.IsNill())//while x != null
             {
                 y = x;
                 if (key < x.Key)
-                    x = buffManager.getRecordFromPage(x.LeftPage, x.LeftOffset);
+                    x = buffManager.getLeft(x);
                 else if (key > x.Key)
-                    x = buffManager.getRecordFromPage(x.RightPage, x.RightOffset);
+                    x = buffManager.getRight(x);
                 else
                     throw new RecordAlreadyExists("Record with key "+ key + " already Exsists");
             }
@@ -97,7 +97,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 currPage = buffManager.CreateNewPage();                  
             Record record = new Record(key, data, currPage.Number, currPage.Position);  //creating record with reference to written data
             currPage.AddRecord(record); //adding record to page records
-            if ( y != null )
+            if (!y.IsNill())//!= null
             {
                 buffManager.setParent(record, y);   //set record parent to y
                 if(key < y.Key)
@@ -113,12 +113,14 @@ namespace RedBlackTreeAlgo.DatabaseManager
         }
         private bool InsertFixup(Record record)
         {
-           while(record.ParentOffset!=0 && buffManager.getParent(record).Color == Color.RED)
+           while( buffManager.getParent(record).Color == Color.RED)// //record.ParentOffset!=0 &&//
             {
-                if (Record.AreEqual(buffManager.getParent(record), buffManager.getLeft(buffManager.getGrandparent(record)) ))   //if parent is a left child
+                //if (Record.AreEqual(buffManager.getParent(record), buffManager.getLeft(buffManager.getGrandparent(record)) ))   //if parent is a left child
+                //{
+                if (buffManager.getParent(record) == buffManager.getLeft(buffManager.getGrandparent(record)) )   //if parent is a left child
                 {
                     Record y = buffManager.getRight(buffManager.getGrandparent(record));  //uncle
-                    if (y != null && y.Color == Color.RED)   //case 1 (uncle is RED). Solution: recolor 
+                    if (y.Color == Color.RED)   //case 1 (uncle is RED). Solution: recolor 
                     {
                         buffManager.setColor(buffManager.getParent(record), Color.BLACK);   //set parent color to black
                         buffManager.setColor(y, Color.BLACK);   //set uncle color to black
@@ -128,7 +130,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                     else
                     {
                         //case 2 (uncle is black, triangle). Solution: transform case 2 into case 3 (rotate)
-                        if (Record.AreEqual(record, buffManager.getRight(buffManager.getParent(record)) ))
+                        if (record == buffManager.getRight(buffManager.getParent(record) ))//Record.AreEqual(record, buffManager.getRight(buffManager.getParent(record))//
                         {
                             record = buffManager.getParent(record);
                             buffManager.LeftRotate(record);
@@ -142,7 +144,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 else //if parent is a right child
                 {
                     Record y = buffManager.getLeft(buffManager.getGrandparent(record));  //uncle
-                    if (y!=null && y.Color == Color.RED)   //case 1 (uncle is RED). Solution: recolor 
+                    if (y.Color == Color.RED)   //case 1 (uncle is RED). Solution: recolor 
                     {
                         buffManager.setColor(buffManager.getParent(record), Color.BLACK);   //set parent color to black
                         buffManager.setColor(y, Color.BLACK);   //set uncle color to black
@@ -152,7 +154,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                     else
                     {
                         //case 2 (uncle is black, triangle). Solution: transform case 2 into case 3 (rotate)
-                        if (Record.AreEqual(record, buffManager.getLeft(buffManager.getParent(record))))
+                        if (record == buffManager.getLeft(buffManager.getParent(record)) ) //Record.AreEqual(record, buffManager.getLeft(buffManager.getParent(record)))//
                         {
                             record = buffManager.getParent(record);
                             buffManager.RightRotate(record);
@@ -172,8 +174,8 @@ namespace RedBlackTreeAlgo.DatabaseManager
             comparisonNumber = 0;
             string? result = null;
             byte[]? dataBytes = null;
-            Record? record = Search(key, out comparisonNumber);
-            if (record != null)
+            Record record = Search(key, out comparisonNumber);
+            if (!record.IsNill())//!= null
                 dataBytes = record.Data;
             if (dataBytes != null)
             {
@@ -181,16 +183,16 @@ namespace RedBlackTreeAlgo.DatabaseManager
             }
             return result;
         }
-        private Record? Search(int key, out int comparisonNumber)
+        private Record Search(int key, out int comparisonNumber)
         {
             comparisonNumber = 0;
-            Record? x = buffManager.getRoot();
-            while (x != null  && x.Key != key)
-            {
+            Record x = buffManager.getRoot();
+            while (!x.IsNill()  && x.Key != key)
+            {                
                 if (key < x.Key)
-                    x = buffManager.getRecordFromPage(x.LeftPage, x.LeftOffset);
+                    x = buffManager.getLeft(x);
                 else
-                    x = buffManager.getRecordFromPage(x.RightPage, x.RightOffset);
+                    x = buffManager.getRight(x);
                 comparisonNumber++;
             }
             comparisonNumber++;
@@ -199,41 +201,40 @@ namespace RedBlackTreeAlgo.DatabaseManager
         public bool Delete(int key)
         {
             bool flag = true; int dummy;
-            Record? record = Search(key, out dummy);
-            if (record == null) return false; //if there is no such an element
-            Record? x, y = record;
+            Record record = Search(key, out dummy);
+            if (record.IsNill()) return false; //if there is no such an element
+            Record x, y = record;
             Color yOriginalColor = y.Color;
-            if (buffManager.getLeft(record) == null)
+            if (buffManager.getLeft(record).IsNill())// right child or no children
             {
                 x = buffManager.getRight(record);
                 buffManager.Transplant(record, buffManager.getRight(record));
             }
-            else if (buffManager.getRight(record) == null)
+            else if (buffManager.getRight(record).IsNill())// left child
             {
                 x = buffManager.getLeft(record);
                 buffManager.Transplant(record, buffManager.getLeft(record));
             }
-            else
+            else//has both children
             {
                 y = buffManager.Minimum(buffManager.getRight(record));
                 yOriginalColor = y.Color;
                 x = buffManager.getRight(y);
-                if (x != null && buffManager.getParent(y) == record)
+                if (buffManager.getParent(y) == record)// if y is a direct child for record
                     buffManager.setParent(x, y);
                 else
                 {
                     buffManager.Transplant(y, buffManager.getRight(y));
                     buffManager.setRight(y, buffManager.getRight(record)); //insert successor instead of node
-                    if (buffManager.getRight(y) != null)
-                        buffManager.setParent(buffManager.getRight(y), y);
+                    buffManager.setParent(buffManager.getRight(y), y);
                 }
                 buffManager.Transplant(record, y);
                 buffManager.setLeft(y, buffManager.getLeft(record));
                 buffManager.setParent(buffManager.getLeft(y), y);
-                buffManager.setColor(y, record.Color);
-                if (yOriginalColor == Color.BLACK)
-                    flag = Delete_Fixup(x);
+                buffManager.setColor(y, record.Color);                
             }
+            if (yOriginalColor == Color.BLACK)
+                flag = Delete_Fixup(x);
             record.DeleteRecordData();
             buffManager.getPageWithNumber(record.recordPage).IsDirty = true;
             buffManager.CleanPagesAndWriteRoot();
@@ -276,16 +277,16 @@ namespace RedBlackTreeAlgo.DatabaseManager
             if (yOriginalColor == NodeColor.BLACK)
                 Delete_Fixup(x);
              */
-
         }
         private bool Delete_Fixup(Record x)
         {
             Record w; //sibling
-            while(x != null && !Record.AreEqual(x, buffManager.getRoot()) && x.Color == Color.BLACK)
+            while(x != buffManager.getRoot() && x.Color == Color.BLACK ) //x != null && 
             {
-                if (Record.AreEqual(x, buffManager.getLeft(buffManager.getParent(x))))//if left child
+                if (x == buffManager.getLeft(buffManager.getParent(x)) )//if left child
                 {
                     w = buffManager.getRight(buffManager.getParent(x));
+                    //case 1
                     if (w.Color == Color.RED)
                     {
                         buffManager.setColor(w, Color.BLACK);
@@ -293,6 +294,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                         buffManager.LeftRotate(buffManager.getParent(x));
                         w = buffManager.getRight(buffManager.getParent(x));
                     }
+                    //case 2
                     if (buffManager.getLeft(w).Color == Color.BLACK && buffManager.getRight(w).Color == Color.BLACK)
                     {
                         buffManager.setColor(w, Color.RED);
@@ -345,7 +347,8 @@ namespace RedBlackTreeAlgo.DatabaseManager
                         x = buffManager.getRoot();
                     }
                 }
-            }
+            }            
+            buffManager.setColor(x, Color.BLACK);
             return true;
             /*
              Node w; //sibling
@@ -431,8 +434,8 @@ namespace RedBlackTreeAlgo.DatabaseManager
         private bool Update(int key, byte[] data)
         {
             int dummy;
-            Record? record = Search(key, out dummy);
-            if (record == null) return false; //if there is no such an element
+            Record record = Search(key, out dummy);
+            if (record.IsNill()) return false; //if there is no such an element
             record.Data = data;
             buffManager.getPageWithNumber(record.recordPage).IsDirty = true;
             buffManager.CleanPagesAndWriteRoot();
@@ -451,8 +454,8 @@ namespace RedBlackTreeAlgo.DatabaseManager
         private void GetNodesRecursion(Record? record, Dictionary<int, (int color, int? leftKey, int? rightKey)> keys, int currHeight)
         {
             int maxNodesNumberToDisplay = 50;
-            int height = (int)Math.Log2(maxNodesNumberToDisplay + 1);
-            if (record != null)
+            int height = (int)Math.Log2(maxNodesNumberToDisplay + 1);//
+            if (record != null && !record.IsNill())
             {
                 int? leftKeyValue = null;
                 int? rightKeyValue = null;
@@ -462,7 +465,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                     leftKeyValue = leftChild.Key;
                 if (rightChild != null)
                     rightKeyValue = rightChild.Key;
-                keys.Add(record.Key, ((int)record.Color, leftKeyValue, rightKeyValue));
+                keys.Add((int)record.Key, ((int)record.Color, leftKeyValue, rightKeyValue));
                 if (currHeight <= height)
                 {
                     GetNodesRecursion(leftChild, keys, currHeight+1);

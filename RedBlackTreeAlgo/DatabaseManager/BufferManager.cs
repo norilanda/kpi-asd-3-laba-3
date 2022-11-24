@@ -28,6 +28,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
 
         private bool needToWriteCurrPage; //start of file
         private bool needToWriteRoot;
+        private Record _root;
 
         public BufferManager(string dbName, byte[] metadata)
         {
@@ -46,6 +47,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 }
             }
             colmns = Parser.MetadataToData(metadata);//get columns sizes, types and names
+            _root = getRecordFromPage(rootPage, rootOffset);
             needToWriteRoot = false;
         }
         //data
@@ -155,19 +157,25 @@ namespace RedBlackTreeAlgo.DatabaseManager
         //records manipulations
         public Record getRoot()
         {
-            return getRecordFromPage(rootPage, rootOffset);
+            return _root;
+            //return getRecordFromPage(rootPage, rootOffset);
         }
         public void setRoot(Record? record)
         {
-            if(record != null)
+            if(record != null && !record.IsNill())
             {
                 rootPage = record.recordPage;
                 rootOffset = record.recordOffset;
+                _root = record;
             }
             else
             {
                 rootPage = 0;
                 rootOffset = 0;
+                if (record != null)
+                    _root = record;
+                else
+                    _root = new Record(null);
             }            
             needToWriteRoot = true;
         }
@@ -179,32 +187,50 @@ namespace RedBlackTreeAlgo.DatabaseManager
         //parent
         public Record getParent(Record record)
         {
+            if (record == null)
+                return new Record(null);
+            if (record.IsNill())
+                return record.P;
             return getRecordFromPage(record.ParentPage, record.ParentOffset);
         }
         public void setParent(Record record, Record parent)
         {
-            if (parent != null)
+            //if (record == null)
+            //    return;
+            if (!parent.IsNill())//parent != null//
             {
                 record.ParentPage = parent.recordPage;
                 record.ParentOffset = parent.recordOffset;
+                if (record.IsNill())
+                    record.P = parent;
             }
             else
             {
                 record.ParentPage = 0;
                 record.ParentOffset = 0;
+                record.P = parent;
             }            
             bufferPool[record.recordPage].IsDirty = true;
         }
-        public Record getGrandparent(Record record) => getParent(getParent(record));
+        public Record? getGrandparent(Record record)
+        {
+            //if (record == null)
+            //    return null;
+            return getParent(getParent(record));
+        }
 
         //left
-        public Record getLeft(Record record)
+        public Record? getLeft(Record record)
         {
+            if (record.IsNill())
+                return null;
+            if (record.LeftOffset == 0)
+                return record.leftNill;
             return getRecordFromPage(record.LeftPage, record.LeftOffset);
         }
         public void setLeft(Record record, Record? successor)
         {
-            if (successor!= null)
+            if (successor != null && !successor.IsNill())//successor != null//
             {
                 record.LeftPage = successor.recordPage;
                 record.LeftOffset = successor.recordOffset;
@@ -213,18 +239,27 @@ namespace RedBlackTreeAlgo.DatabaseManager
             {
                 record.LeftPage = 0;
                 record.LeftOffset = 0;
+                if (successor != null)
+                    record.leftNill = successor;
+                else
+                    record.leftNill = new Record(record);
             }            
             bufferPool[record.recordPage].IsDirty = true;
         }
         //right
-        public Record getRight(Record record)
+        public Record? getRight(Record record)
         {
+            if (record.IsNill())
+                return null;
+            if (record.RightOffset == 0)
+                return record.rightNill;
             return getRecordFromPage(record.RightPage, record.RightOffset);
         }
-        public void setRight(Record record, Record? successor)
+        public void setRight(Record? record, Record successor)
         {
-
-            if (successor != null)
+            //if (record == null)
+            //    return;
+            if (successor != null && !successor.IsNill())//successor != null//
             {
                 record.RightPage = successor.recordPage;
                 record.RightOffset = successor.recordOffset;
@@ -233,17 +268,23 @@ namespace RedBlackTreeAlgo.DatabaseManager
             {
                 record.RightPage = 0;
                 record.RightOffset = 0;
+                if (successor != null)
+                    record.rightNill = successor;
+                else
+                    record.rightNill = new Record(record);
             }           
             bufferPool[record.recordPage].IsDirty = true;
         }
-        public void setColor(Record record, Color color)
+        //color
+        public void setColor(Record? record, Color color)
         {
-            if (record.Color != color)
+            if (record != null && record.Color != color)
             {
                 record.Color = color;
                 bufferPool[record.recordPage].IsDirty = true;
             }
         }
+       
         public void LeftRotate(Record x)
         {
             Record y = getRight(x);
@@ -261,7 +302,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
             setLeft(y, x); //y.Left = x
             setParent(x, y);
         }
-        public void RightRotate(Record x)
+        public void RightRotate(Record? x)
         {
             Record y = getLeft(x);
             setLeft(x, getRight(y)); // x.Left = y.Right
@@ -278,17 +319,16 @@ namespace RedBlackTreeAlgo.DatabaseManager
             setRight(y, x);//y.Right = x
             setParent(x, y);
         }
-        public void Transplant(Record? u, Record? v)
+        public void Transplant(Record u, Record v)
         {
-            if (getParent(u) == null)
+            if (getParent(u).IsNill())
                 setRoot(v);//root = v;
-            else if(Record.AreEqual(u, getLeft(getParent(u)) ))
+            else if(u == getLeft(getParent(u)) )
                 setLeft(getParent(u), v);//u.P.Left = v;
             else
                 setRight(getParent(u), v);//u.P.Right = v;
-
-            if (v != null)
-                setParent(v, getParent(v));//v.P = u.P;
+                        
+            setParent(v, getParent(u));//v.P = u.P;
             /*
              private void Transplant(Node? u, Node? v)
         {
@@ -305,7 +345,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
         }
         public Record Minimum(Record record)
         {
-            while (getLeft(record) != null) 
+            while (!getLeft(record).IsNill()) //getLeft(record) != null
             { 
                 record = getLeft(record);
             }
