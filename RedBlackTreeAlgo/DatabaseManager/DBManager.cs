@@ -295,14 +295,14 @@ namespace RedBlackTreeAlgo.DatabaseManager
                         w = buffManager.getRight(buffManager.getParent(x));
                     }
                     //case 2
-                    if (buffManager.getLeft(w).Color == Color.BLACK && buffManager.getRight(w).Color == Color.BLACK)
+                    if (!w.IsNill() && buffManager.getLeft(w).Color == Color.BLACK && buffManager.getRight(w).Color == Color.BLACK)
                     {
                         buffManager.setColor(w, Color.RED);
                         x = buffManager.getParent(x);
                     }
                     else
                     {
-                        if (buffManager.getRight(w).Color == Color.BLACK)
+                        if (!w.IsNill() && buffManager.getRight(w).Color == Color.BLACK)
                         {
                             buffManager.setColor(buffManager.getLeft(w), Color.BLACK);
                             buffManager.setColor(w, Color.RED);
@@ -326,14 +326,14 @@ namespace RedBlackTreeAlgo.DatabaseManager
                         buffManager.RightRotate(buffManager.getParent(x));
                         w = buffManager.getLeft(buffManager.getParent(x));
                     }
-                    if (buffManager.getRight(w).Color == Color.BLACK && buffManager.getLeft(w).Color == Color.BLACK)
+                    if (!w.IsNill() && buffManager.getRight(w).Color == Color.BLACK && buffManager.getLeft(w).Color == Color.BLACK)
                     {
                         buffManager.setColor(w, Color.RED);
                         x = buffManager.getParent(x);
                     }
                     else
                     {
-                        if (buffManager.getLeft(w).Color == Color.BLACK)
+                        if (!w.IsNill() && buffManager.getLeft(w).Color == Color.BLACK)
                         {
                             buffManager.setColor(buffManager.getRight(w), Color.BLACK);
                             buffManager.setColor(w, Color.RED);

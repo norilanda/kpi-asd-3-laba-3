@@ -17,6 +17,7 @@ namespace RBTreeGui
             string input = "id int";
             //DBManager.CreateDatabase(DBname, input);
             textBoxDBName.Text = DBname;
+            Test.generateIntDB(DBname);
             //textBoxErrors.Text = "Success; DB " + DBname + " has been created.";
             //DBManager dBManager = new DBManager(DBname);
             //dBManager.InsertData("4");

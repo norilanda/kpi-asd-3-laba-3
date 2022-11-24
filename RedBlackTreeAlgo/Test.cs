@@ -40,5 +40,31 @@ namespace RedBlackTreeAlgo
             }
             return errors;
         }
+        public static void generateIntDB(string DBname)
+        {
+            int[] keys = { 3, 5, 2, 4898, 908, 87, 47, 453, 22, 30, 13, 41, 1009, 765, 54, 432, 7600, 6, 44, 1, 4, 7, 8, 9,10, 16, 15, 14, 11, 55, 102, 103, 111, 209, 208 };
+            string input = "id int";
+            DBManager.CreateDatabase(DBname, input);
+            DBManager dBManager = new DBManager(DBname);
+            for (int i=0;i<keys.Length;i++)
+            {
+                try
+                {
+                    dBManager.InsertData(Convert.ToString(keys[i]));
+                }
+                catch (RecordAlreadyExists ex)
+                {
+
+                }
+            }
+            //for (int i = keys.Length-1; i >=0;i--)
+            //{
+            //    dBManager.Delete(keys[i]);
+            //}
+            for (int i = keys.Length - 1; i >= keys.Length/2; i--)
+            {
+                dBManager.Delete(keys[i]);
+            }
+        }
     }
 }
