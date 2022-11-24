@@ -11,7 +11,7 @@ namespace RedBlackTreeAlgo
 {
     public class Test
     {
-        //int errors = Test.createDB10_000Records("DB10000records");
+        //Test.createDB10_000Records("DB10000records");
         public static int createDB10_000Records(string DBname)
         {
             const int N = 10000;
@@ -42,6 +42,12 @@ namespace RedBlackTreeAlgo
         }
         public static void generateIntDB(string DBname)
         {
+            //string DBname = "f1";
+            //string input = "id int";
+            ////DBManager.CreateDatabase(DBname, input);
+            //textBoxDBName.Text = DBname;
+            //Test.generateIntDB(DBname);
+
             int[] keys = { 3, 5, 2, 4898, 908, 87, 47, 453, 22, 30, 13, 41, 1009, 765, 54, 432, 7600, 6, 44, 1, 4, 7, 8, 9,10, 16, 15, 14, 11, 55, 102, 103, 111, 209, 208 };
             string input = "id int";
             DBManager.CreateDatabase(DBname, input);

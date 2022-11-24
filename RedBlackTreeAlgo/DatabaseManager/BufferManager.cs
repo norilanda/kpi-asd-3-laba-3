@@ -158,7 +158,6 @@ namespace RedBlackTreeAlgo.DatabaseManager
         public Record getRoot()
         {
             return _root;
-            //return getRecordFromPage(rootPage, rootOffset);
         }
         public void setRoot(Record? record)
         {
@@ -194,10 +193,8 @@ namespace RedBlackTreeAlgo.DatabaseManager
             return getRecordFromPage(record.ParentPage, record.ParentOffset);
         }
         public void setParent(Record record, Record parent)
-        {
-            //if (record == null)
-            //    return;
-            if (!parent.IsNill())//parent != null//
+        {          
+            if (!parent.IsNill())
             {
                 record.ParentPage = parent.recordPage;
                 record.ParentOffset = parent.recordOffset;
@@ -213,9 +210,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
             bufferPool[record.recordPage].IsDirty = true;
         }
         public Record? getGrandparent(Record record)
-        {
-            //if (record == null)
-            //    return null;
+        {            
             return getParent(getParent(record));
         }
 
@@ -230,7 +225,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
         }
         public void setLeft(Record record, Record? successor)
         {
-            if (successor != null && !successor.IsNill())//successor != null//
+            if (successor != null && !successor.IsNill())
             {
                 record.LeftPage = successor.recordPage;
                 record.LeftOffset = successor.recordOffset;
@@ -256,10 +251,8 @@ namespace RedBlackTreeAlgo.DatabaseManager
             return getRecordFromPage(record.RightPage, record.RightOffset);
         }
         public void setRight(Record? record, Record successor)
-        {
-            //if (record == null)
-            //    return;
-            if (successor != null && !successor.IsNill())//successor != null//
+        {            
+            if (successor != null && !successor.IsNill())
             {
                 record.RightPage = successor.recordPage;
                 record.RightOffset = successor.recordOffset;
@@ -295,7 +288,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                                         
             if (x.ParentOffset == 0) //if x.P == null
                 setRoot(y); //set root to y
-            else if (Record.AreEqual(x, getLeft(getParent(x)))) //x == x.P.Left//(x is left child)
+            else if (x == getLeft(getParent(x)) ) //x == x.P.Left//(x is left child)
                 setLeft(getParent(x), y);//x.P.Left = y
             else //(x is right child)
                 setRight(getParent(x), y);//x.P.Right = y
@@ -312,7 +305,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                                         
             if (x.ParentOffset == 0) //if x.P == null
                 setRoot(y); //set root to y
-            else if (Record.AreEqual(x, getRight(getParent(x)))) //x == x.P.Right
+            else if (x == getRight(getParent(x)) ) //x == x.P.Right
                 setRight(getParent(x), y);//x.P.Right = y
             else
                 setLeft(getParent(x), y);//x.P.Left = y
@@ -328,20 +321,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
             else
                 setRight(getParent(u), v);//u.P.Right = v;
                         
-            setParent(v, getParent(u));//v.P = u.P;
-            /*
-             private void Transplant(Node? u, Node? v)
-        {
-            if (u.P == null)
-                root = v;
-            else if (u == u.P.Left)
-                u.P.Left = v;
-            else
-                u.P.Right = v;
-            if (v != null)
-                v.P = u.P;
-        }
-             */
+            setParent(v, getParent(u));//v.P = u.P;            
         }
         public Record Minimum(Record record)
         {

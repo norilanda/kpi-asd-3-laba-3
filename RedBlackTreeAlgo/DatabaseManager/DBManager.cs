@@ -27,12 +27,11 @@ namespace RedBlackTreeAlgo.DatabaseManager
         public static bool CreateDatabase(string name, string description)
         {
             int dataSize;
-            byte[] metadata = Parser.CreateMetadataForDB(description, out dataSize);//should write without space
+            byte[] metadata = Parser.CreateMetadataForDB(description, out dataSize);
             return CreateDatabase(name, metadata, dataSize);
         }
         private static bool CreateDatabase(string name, byte[] metadata, int spaceDataInNodes)
-        {
-            //check name ? maybe later
+        {            
             //store metadata in separate file
             BinaryWriter bw = new BinaryWriter(File.Open(name+"Meta", FileMode.Create));
             bw.Write(metadata);
@@ -81,7 +80,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
         {
             Record y = new Record(null);// y = nill
             Record x = buffManager.getRoot();
-            while(!x.IsNill())//while x != null
+            while(!x.IsNill())
             {
                 y = x;
                 if (key < x.Key)
@@ -97,7 +96,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 currPage = buffManager.CreateNewPage();                  
             Record record = new Record(key, data, currPage.Number, currPage.Position);  //creating record with reference to written data
             currPage.AddRecord(record); //adding record to page records
-            if (!y.IsNill())//!= null
+            if (!y.IsNill())
             {
                 buffManager.setParent(record, y);   //set record parent to y
                 if(key < y.Key)
@@ -113,10 +112,8 @@ namespace RedBlackTreeAlgo.DatabaseManager
         }
         private bool InsertFixup(Record record)
         {
-           while( buffManager.getParent(record).Color == Color.RED)// //record.ParentOffset!=0 &&//
+           while( buffManager.getParent(record).Color == Color.RED)
             {
-                //if (Record.AreEqual(buffManager.getParent(record), buffManager.getLeft(buffManager.getGrandparent(record)) ))   //if parent is a left child
-                //{
                 if (buffManager.getParent(record) == buffManager.getLeft(buffManager.getGrandparent(record)) )   //if parent is a left child
                 {
                     Record y = buffManager.getRight(buffManager.getGrandparent(record));  //uncle
@@ -130,7 +127,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                     else
                     {
                         //case 2 (uncle is black, triangle). Solution: transform case 2 into case 3 (rotate)
-                        if (record == buffManager.getRight(buffManager.getParent(record) ))//Record.AreEqual(record, buffManager.getRight(buffManager.getParent(record))//
+                        if (record == buffManager.getRight(buffManager.getParent(record) ))
                         {
                             record = buffManager.getParent(record);
                             buffManager.LeftRotate(record);
@@ -175,7 +172,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
             string? result = null;
             byte[]? dataBytes = null;
             Record record = Search(key, out comparisonNumber);
-            if (!record.IsNill())//!= null
+            if (!record.IsNill())
                 dataBytes = record.Data;
             if (dataBytes != null)
             {
@@ -238,50 +235,12 @@ namespace RedBlackTreeAlgo.DatabaseManager
             record.DeleteRecordData();
             buffManager.getPageWithNumber(record.recordPage).IsDirty = true;
             buffManager.CleanPagesAndWriteRoot();
-            return flag;
-            /*
-            Node? node = Search(key);
-            if (node == null) return;
-            Node? x, y = node;
-            NodeColor yOriginalColor = y.Color;
-            if (node.Left == null)
-            {
-                x = node.Right;
-                Transplant(node, node.Right);
-            }
-            else if (node.Right == null)
-            {
-                x = node.Left;
-                Transplant(node, node.Left);
-            }*/
-            /*
-            else
-            {
-                y = Minimum(node.Right);
-                yOriginalColor = y.Color;
-                x = y.Right;
-                if (x != null && y.P == node)
-                    x.P = y;
-                else
-                {
-                    Transplant(y, y.Right);
-                    y.Right = node.Right;   //insert successor instead of node
-                    if (y.Right!= null)
-                        y.Right.P = y;//null
-                }
-                Transplant(node, y);
-                y.Left = node.Left;
-                y.Left.P = y;
-                y.Color = node.Color;
-            }
-            if (yOriginalColor == NodeColor.BLACK)
-                Delete_Fixup(x);
-             */
+            return flag;           
         }
         private bool Delete_Fixup(Record x)
         {
             Record w; //sibling
-            while(x != buffManager.getRoot() && x.Color == Color.BLACK ) //x != null && 
+            while(x != buffManager.getRoot() && x.Color == Color.BLACK )
             {
                 if (x == buffManager.getLeft(buffManager.getParent(x)) )//if left child
                 {
@@ -349,77 +308,7 @@ namespace RedBlackTreeAlgo.DatabaseManager
                 }
             }            
             buffManager.setColor(x, Color.BLACK);
-            return true;
-            /*
-             Node w; //sibling
-            while (x!=null && x != root && x.Color == NodeColor.BLACK)//
-            {
-                if (x == x.P.Left)  //if left child
-                {
-                    w = x.P.Right;
-                    if (w.Color == NodeColor.RED)
-                    {
-                        w.Color = NodeColor.BLACK;
-                        x.P.Color = NodeColor.RED;
-                        LeftRotate(x.P);
-                        w = x.P.Right;
-                    }
-                    if (w.Left.Color == NodeColor.BLACK && w.Right.Color == NodeColor.BLACK)
-                    {
-                        w.Color = NodeColor.RED;
-                        x = x.P;
-                    } */
-            /*
-                    else
-                    {
-                        if (w.Right.Color == NodeColor.BLACK)
-                        {
-                            w.Left.Color = NodeColor.BLACK;
-                            w.Color = NodeColor.RED;
-                            RightRotate(w);
-                            w = x.P.Right;
-                        }
-                        w.Color = x.P.Color;
-                        x.P.Color = NodeColor.BLACK;
-                        w.Right.Color = NodeColor.BLACK;
-                        LeftRotate(x.P);
-                        x = root;
-                    }
-                } */ 
-            /*
-                else //if right child
-                {
-                    w = x.P.Left;
-                    if (w.Color == NodeColor.RED)
-                    {
-                        w.Color = NodeColor.BLACK;
-                        x.P.Color = NodeColor.RED;
-                        RightRotate(x.P);
-                        w = x.P.Left;
-                    }
-                    if (w.Right.Color == NodeColor.BLACK && w.Left.Color == NodeColor.BLACK)
-                    {
-                        w.Color = NodeColor.RED;
-                        x = x.P;
-                    }
-                    else
-                    {
-                        if (w.Left.Color == NodeColor.BLACK)
-                        {
-                            w.Right.Color = NodeColor.BLACK;
-                            w.Color = NodeColor.RED;
-                            LeftRotate(w);
-                            w = x.P.Left;
-                        }
-                        w.Color = x.P.Color;
-                        x.P.Color = NodeColor.BLACK;
-                        w.Left.Color = NodeColor.BLACK;
-                        RightRotate(x.P);
-                        x = root;
-                    }
-                }
-            }
-             */
+            return true;            
         }
         public bool UpdateData(string data)
         {

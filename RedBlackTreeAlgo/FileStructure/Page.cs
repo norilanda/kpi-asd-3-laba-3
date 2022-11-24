@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace RedBlackTreeAlgo.FileStructure
 {   
-    public class Page//internal?
+    public class Page
     {
         /* Class Page represents the block in file.
          */
@@ -86,7 +86,7 @@ namespace RedBlackTreeAlgo.FileStructure
             records[offset] = record;
             _isDirty= true;
         }
-        public void AddRecord(Record record)
+        public void AddRecord(Record record) //create nill
         {
             records.Add(record.recordOffset, record);
             _freeSpace -= Record.RecordSize;

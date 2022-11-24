@@ -11,22 +11,8 @@ namespace RBTreeGui
     {
         public Form1()
         {
-            InitializeComponent();
-
-            string DBname = "f1";
-            string input = "id int";
-            //DBManager.CreateDatabase(DBname, input);
-            textBoxDBName.Text = DBname;
-            Test.generateIntDB(DBname);
-            //textBoxErrors.Text = "Success; DB " + DBname + " has been created.";
-            //DBManager dBManager = new DBManager(DBname);
-            //dBManager.InsertData("4");
-            //dBManager.InsertData("5");
-            //dBManager.InsertData("89");
-            //dBManager.InsertData("97");
-            //dBManager.Delete(5);
-            //dBManager.Delete(4);
-            //dBManager.Delete(89);
+            InitializeComponent();           
+           
         }
 
         private void btnInsert_Click(object sender, EventArgs e)
@@ -111,6 +97,8 @@ namespace RBTreeGui
             {                
                 DBManager.CreateDatabase(DBname, input);
                 textBoxErrors.Text = "Success; DB "+ DBname + " has been created.";
+                textBoxResults.Text = "";
+                textBoxStatistic.Text = "";
             }           
         }
 
@@ -131,8 +119,9 @@ namespace RBTreeGui
                     if (flag)
                         textBoxErrors.Text = "Success; 1 row deleted";
                     else
-                        textBoxErrors.Text = "Failed";
+                        textBoxErrors.Text = "Failed; no key found";
                     textBoxResults.Text = "";
+                    textBoxStatistic.Text = "";
                 }
             }            
         }
@@ -153,7 +142,9 @@ namespace RBTreeGui
                     if (flag)
                         textBoxErrors.Text = "Success; 1 row updated";
                     else
-                        textBoxErrors.Text = "Failed";
+                        textBoxErrors.Text = "Failed; no key found";
+                    textBoxResults.Text = "";
+                    textBoxStatistic.Text = "";
                 }
             }                
         }

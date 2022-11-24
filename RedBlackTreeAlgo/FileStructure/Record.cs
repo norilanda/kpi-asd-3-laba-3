@@ -112,19 +112,7 @@ namespace RedBlackTreeAlgo.FileStructure
             _key = null;
             _color = Color.BLACK;
             P = parent;
-        }
-        public static bool AreEqual(Record? record1, Record? record2)
-        {
-            if ((record1 != null && record2 ==null) || (record1 == null && record2 != null))
-                return false;
-            if (record1 == null && record2 == null)
-                return true;
-            if (record1.recordPage != record2.recordPage)
-                return false;
-            if (record1.recordOffset != record2.recordOffset) 
-                return false;
-            return true;
-        }
+        }        
         public bool IsNill()
         {
             if (this._key == null)
@@ -152,7 +140,6 @@ namespace RedBlackTreeAlgo.FileStructure
             bytes.CopyTo(recordBytes, pos);
             pos += bytes.Length;
 
-            //try
             this._data.CopyTo(recordBytes, pos);
             pos += this._data.Length;
 
